@@ -1,0 +1,61 @@
+{
+  "books": [
+    {
+      "bookId": "qubian",
+      "title": "《蘧编》",
+      "subtitle": "明·叶向高 · 纪年体士人年谱",
+      "genre": "明代年谱（纪年编年体）",
+      "layerCount": 8,
+      "stats": {
+        "items": 71,
+        "volumes": 20,
+        "entities": 805,
+        "mentions": 997,
+        "appt": 63,
+        "event": 281,
+        "rel": 338,
+        "lit": 9,
+        "mem": 114,
+        "chr": 71,
+        "trl": 71
+      }
+    },
+    {
+      "bookId": "shuidong-riji",
+      "title": "《水东日记》",
+      "subtitle": "明·叶盛 · 典章制度类笔记",
+      "genre": "明代笔记（典章制度型）",
+      "layerCount": 9,
+      "stats": {
+        "items": 1192,
+        "volumes": 38,
+        "entities": 1900,
+        "mentions": 2253,
+        "event": 234,
+        "appt": 237,
+        "reg": 72,
+        "lit": 180,
+        "nam": 54,
+        "rel": 126,
+        "trl": 1192
+      }
+    },
+    {
+      "bookId": "xinguan-guifan",
+      "title": "《新官轨范》",
+      "subtitle": "明 · 佚名 · 为官施政手册",
+      "genre": "明代官箴（施政手册型）",
+      "layerCount": 7,
+      "stats": {
+        "items": 275,
+        "volumes": 3,
+        "entities": 591,
+        "mentions": 1981,
+        "event": 229,
+        "rule": 273,
+        "proc": 274,
+        "struct": 677
+      }
+    }
+  ]
+}

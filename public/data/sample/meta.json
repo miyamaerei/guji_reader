@@ -1,0 +1,14 @@
+{
+  "bookId": "sample",
+  "title": "《示例书》",
+  "stats": { "item": 3, "ent": 7, "event": 2 },
+  "volumes": [
+    { "id": "01", "label": "卷一", "itemCount": 3, "mode": "制度" }
+  ],
+  "vol_modes": {
+    "modes": [
+      { "key": "制度", "label": "制度", "volumeCount": 1, "itemCount": 3 }
+    ],
+    "byVolume": { "01": "制度" }
+  }
+}

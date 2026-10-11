@@ -1,0 +1,48 @@
+{
+  "bookId": "xinguan-guifan",
+  "title": "《新官轨范》",
+  "subtitle": "明 · 佚名 · 为官施政手册",
+  "genre": "明代官箴（施政手册型）",
+  "stats": {
+    "items": 275,
+    "volumes": 3,
+    "entities": 591,
+    "mentions": 1981,
+    "event": 229,
+    "rule": 273,
+    "proc": 274,
+    "struct": 677
+  },
+  "volumes": [
+    {
+      "id": "00",
+      "label": "卷首",
+      "itemCount": 1
+    },
+    {
+      "id": "01",
+      "label": "卷上",
+      "itemCount": 94
+    },
+    {
+      "id": "02",
+      "label": "卷下",
+      "itemCount": 180
+    }
+  ],
+  "build": {
+    "span": {
+      "L1": 1981,
+      "L2": 0,
+      "L3": 0,
+      "L0": 0
+    },
+    "span_dropped_overlap": 0,
+    "imputed": {
+      "source": 0,
+      "confidence": 0
+    },
+    "generated_at": "2026-10-10T02:12:26.284Z",
+    "generator": "scripts/build_book_data.mjs"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "bookId": "sample",
+  "title": "《示例书》",
+  "subtitle": "契约验证用假书 · 非真实典籍",
+  "genre": "验证数据",
+  "structure": {
+    "tree": ["volume", "item"],
+    "chunkBy": "volume",
+    "groupSize": 5
+  },
+  "colors": {
+    "primary": "#1d9e75",
+    "entityTypes": {
+      "person": "#534ab7",
+      "place": "#0f6e56",
+      "institution": "#185fa5",
+      "era": "#854f0b",
+      "work": "#993c1d"
+    }
+  },
+  "layers": [
+    {
+      "id": "ent",
+      "label": "实体",
+      "required": true,
+      "tag": "EN",
+      "views": { "list": "table", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "text": { "key": "text", "label": "词形", "type": "text" },
+        "normalized": { "key": "normalized", "label": "归一词", "type": "text" },
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["person", "place", "institution", "era", "work"], "view": "chip" }
+      }
+    },
+    {
+      "id": "event",
+      "label": "事件",
+      "required": true,
+      "tag": "EV",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["礼仪", "人事任免", "文事"], "view": "chip" },
+        "who": { "key": "who", "label": "主体", "type": "ent-ref", "refLayer": "ent" },
+        "action": { "key": "action", "label": "行为", "type": "text" },
+        "what": { "key": "what", "label": "对象", "type": "text" },
+        "when": { "key": "when", "label": "时间", "type": "text" },
+        "where": { "key": "where", "label": "地点", "type": "ent-ref", "refLayer": "ent" }
+      }
+    },
+    {
+      "id": "appt",
+      "label": "职官任职",
+      "required": false,
+      "reserved": true,
+      "tag": "AP",
+      "views": { "list": "table", "detail": ["table", "timeline"] },
+      "filter": "chips",
+      "filterBy": "status",
+      "fields": {
+        "person": { "key": "person", "label": "人物", "type": "ent-ref", "refLayer": "ent" },
+        "office": { "key": "office", "label": "官职", "type": "text" },
+        "when": { "key": "when", "label": "时间", "type": "text" },
+        "status": { "key": "status", "label": "状态", "type": "enum", "enum": ["现任", "致仕", "升迁", "贬谪", "罢黜", "兼领", "暂代", "追赠", "未明"], "view": "chip" }
+      }
+    }
+  ],
+  "join": { "layers": ["ent", "event"], "primary": "ent" },
+  "volProfile": { "enabled": true, "source": "meta.vol_modes" }
+}

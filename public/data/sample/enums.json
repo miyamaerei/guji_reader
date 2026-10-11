@@ -1,0 +1,17 @@
+{
+  "ent": {
+    "type": [
+      { "value": "institution", "count": 3 },
+      { "value": "person", "count": 1 },
+      { "value": "place", "count": 1 },
+      { "value": "era", "count": 1 },
+      { "value": "work", "count": 1 }
+    ]
+  },
+  "event": {
+    "type": [
+      { "value": "礼仪", "count": 1 },
+      { "value": "人事任免", "count": 1 }
+    ]
+  }
+}

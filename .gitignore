@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vite/
+*.local
+.DS_Store
+
+# 注意：public/data/ 下的打包产物**需要入库** —— 源数据不在本仓库，
+# 发布/CI 构建依赖已打包好的数据包。仅忽略中间产物。
+public/data/*/_pack/
+scripts/out/

@@ -1,0 +1,226 @@
+{
+  "bookId": "shuidong-riji",
+  "title": "《水东日记》",
+  "subtitle": "明·叶盛 · 典章制度类笔记",
+  "genre": "明代笔记（典章制度型）",
+  "stats": {
+    "items": 1192,
+    "volumes": 38,
+    "entities": 1900,
+    "mentions": 2253,
+    "event": 234,
+    "appt": 237,
+    "reg": 72,
+    "lit": 180,
+    "nam": 54,
+    "rel": 126,
+    "trl": 1192
+  },
+  "volumes": [
+    {
+      "id": "01",
+      "label": "水东日记卷一",
+      "itemCount": 17
+    },
+    {
+      "id": "02",
+      "label": "水东日记卷二",
+      "itemCount": 15
+    },
+    {
+      "id": "03",
+      "label": "水东日记卷三",
+      "itemCount": 29
+    },
+    {
+      "id": "04",
+      "label": "水东日记卷四",
+      "itemCount": 18
+    },
+    {
+      "id": "05",
+      "label": "水东日记卷五",
+      "itemCount": 24
+    },
+    {
+      "id": "06",
+      "label": "水东日记卷六",
+      "itemCount": 23
+    },
+    {
+      "id": "07",
+      "label": "水东日记卷七",
+      "itemCount": 22
+    },
+    {
+      "id": "08",
+      "label": "水东日记卷八",
+      "itemCount": 18
+    },
+    {
+      "id": "09",
+      "label": "水东日记卷九",
+      "itemCount": 20
+    },
+    {
+      "id": "10",
+      "label": "水东日记卷十",
+      "itemCount": 24
+    },
+    {
+      "id": "11",
+      "label": "水东日记卷十一",
+      "itemCount": 17
+    },
+    {
+      "id": "12",
+      "label": "水东日记卷十二",
+      "itemCount": 24
+    },
+    {
+      "id": "13",
+      "label": "水东日记卷十三",
+      "itemCount": 4
+    },
+    {
+      "id": "14",
+      "label": "水东日记卷十四",
+      "itemCount": 10
+    },
+    {
+      "id": "15",
+      "label": "水东日记卷十五",
+      "itemCount": 24
+    },
+    {
+      "id": "16",
+      "label": "水东日记卷十六",
+      "itemCount": 23
+    },
+    {
+      "id": "17",
+      "label": "水东日记卷十七",
+      "itemCount": 125
+    },
+    {
+      "id": "18",
+      "label": "水东日记卷十八",
+      "itemCount": 119
+    },
+    {
+      "id": "19",
+      "label": "水东日记卷十九",
+      "itemCount": 7
+    },
+    {
+      "id": "20",
+      "label": "水东日记卷二十",
+      "itemCount": 9
+    },
+    {
+      "id": "21",
+      "label": "水东日记卷二十一",
+      "itemCount": 6
+    },
+    {
+      "id": "22",
+      "label": "水东日记卷二十二",
+      "itemCount": 27
+    },
+    {
+      "id": "23",
+      "label": "水东日记卷二十三",
+      "itemCount": 8
+    },
+    {
+      "id": "24",
+      "label": "水东日记卷二十四",
+      "itemCount": 8
+    },
+    {
+      "id": "25",
+      "label": "水东日记卷二十五",
+      "itemCount": 29
+    },
+    {
+      "id": "26",
+      "label": "水东日记卷二十六",
+      "itemCount": 5
+    },
+    {
+      "id": "27",
+      "label": "水东日记卷二十七",
+      "itemCount": 15
+    },
+    {
+      "id": "28",
+      "label": "水东日记卷二十八",
+      "itemCount": 7
+    },
+    {
+      "id": "29",
+      "label": "水东日记卷二十九",
+      "itemCount": 195
+    },
+    {
+      "id": "30",
+      "label": "水东日记卷三十",
+      "itemCount": 5
+    },
+    {
+      "id": "31",
+      "label": "水东日记卷三十一",
+      "itemCount": 12
+    },
+    {
+      "id": "32",
+      "label": "水东日记卷三十二",
+      "itemCount": 21
+    },
+    {
+      "id": "33",
+      "label": "水东日记卷三十三",
+      "itemCount": 93
+    },
+    {
+      "id": "34",
+      "label": "水东日记卷三十四",
+      "itemCount": 89
+    },
+    {
+      "id": "35",
+      "label": "水东日记卷三十五",
+      "itemCount": 4
+    },
+    {
+      "id": "36",
+      "label": "水东日记卷三十六",
+      "itemCount": 87
+    },
+    {
+      "id": "37",
+      "label": "水东日记卷三十七",
+      "itemCount": 6
+    },
+    {
+      "id": "38",
+      "label": "水东日记卷三十八",
+      "itemCount": 3
+    }
+  ],
+  "build": {
+    "span": {
+      "L1": 1962,
+      "L2": 0,
+      "L3": 238,
+      "L0": 53
+    },
+    "span_dropped_overlap": 32,
+    "imputed": {
+      "source": 2095,
+      "confidence": 234
+    },
+    "generated_at": "2026-10-10T02:12:25.857Z",
+    "generator": "scripts/build_book_data.mjs"
+  }
+}

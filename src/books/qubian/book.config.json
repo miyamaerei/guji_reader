@@ -1,0 +1,152 @@
+{
+  "bookId": "qubian",
+  "title": "《蘧编》",
+  "subtitle": "明·叶向高 · 纪年体士人年谱",
+  "genre": "明代年谱（纪年编年体）",
+  "structure": {
+    "tree": ["volume", "item"],
+    "chunkBy": "volume",
+    "groupSize": 10
+  },
+  "colors": {
+    "primary": "#1f6f5c",
+    "entityTypes": {
+      "person": "#534ab7",
+      "official": "#185fa5",
+      "institution": "#a32d2d",
+      "place": "#0f6e56",
+      "era": "#854f0b",
+      "work": "#993c1d",
+      "object": "#7a5b2e",
+      "unknown": "#888780"
+    }
+  },
+  "layers": [
+    {
+      "id": "ent",
+      "label": "实体",
+      "required": true,
+      "tag": "EN",
+      "views": { "list": "table", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "fields": {
+        "text": { "key": "text", "label": "词形", "type": "text" },
+        "normalized": { "key": "normalized", "label": "归一词", "type": "text" },
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["person", "official", "institution", "place", "era", "work", "object", "unknown"], "view": "chip" }
+      }
+    },
+    {
+      "id": "event",
+      "label": "事件",
+      "required": true,
+      "tag": "EV",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "fields": {
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["朝政", "家事", "人事任免", "军事", "弹劾", "司法", "科举", "礼仪", "文事", "经济", "边事", "建言", "灾异", "轶事", "政变", "疾疫"], "view": "chip" },
+        "who": { "key": "who", "label": "主体", "type": "text" },
+        "action": { "key": "action", "label": "行为", "type": "text" },
+        "what": { "key": "what", "label": "内容", "type": "text", "view": "block" },
+        "when": { "key": "when", "label": "时间", "type": "text" },
+        "where": { "key": "where", "label": "地点", "type": "text" }
+      }
+    },
+    {
+      "id": "appt",
+      "label": "职官任职",
+      "required": false,
+      "tag": "AP",
+      "views": { "list": "table", "detail": ["table", "timeline"] },
+      "filter": "chips",
+      "filterBy": "status",
+      "fields": {
+        "person": { "key": "person", "label": "人物", "type": "text" },
+        "office": { "key": "office", "label": "官职", "type": "text" },
+        "institution": { "key": "institution", "label": "机构", "type": "text" },
+        "when": { "key": "when", "label": "时间", "type": "text" },
+        "status": { "key": "status", "label": "状态", "type": "enum", "enum": ["现任", "升迁", "起复", "罢黜", "致仕", "暂代", "兼领", "举荐", "追赠"], "view": "chip" }
+      }
+    },
+    {
+      "id": "rel",
+      "label": "人物关系",
+      "required": false,
+      "tag": "R",
+      "views": { "list": "card", "detail": ["table", "graph"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "fields": {
+        "person_a": { "key": "person_a", "label": "人物甲", "type": "text" },
+        "person_b": { "key": "person_b", "label": "人物乙", "type": "text" },
+        "type": { "key": "type", "label": "关系", "type": "enum", "enum": ["同僚", "父子亲属", "恩怨", "师生", "姻亲", "举荐", "弹劾", "其他", "同乡", "上下级", "同窗", "敌对"], "view": "chip" },
+        "direction": { "key": "direction", "label": "方向", "type": "enum", "enum": ["单向", "双向"], "view": "chip" }
+      }
+    },
+    {
+      "id": "mem",
+      "label": "奏疏谕旨",
+      "required": false,
+      "tag": "M",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "fields": {
+        "actor": { "key": "actor", "label": "上奏者", "type": "text" },
+        "target": { "key": "target", "label": "所奏对象", "type": "text" },
+        "type": { "key": "type", "label": "方式", "type": "enum", "enum": ["上疏", "具揭", "传谕", "谕旨"], "view": "chip" },
+        "issue": { "key": "issue", "label": "事由", "type": "text", "view": "block" },
+        "response": { "key": "response", "label": "批复", "type": "text", "view": "block" },
+        "result": { "key": "result", "label": "结果", "type": "enum", "enum": ["允准", "不允", "留中", "未报"], "view": "chip" }
+      }
+    },
+    {
+      "id": "chr",
+      "label": "年谱纪年",
+      "required": false,
+      "tag": "Y",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "category",
+      "fields": {
+        "era": { "key": "era", "label": "年号纪年", "type": "text" },
+        "year": { "key": "year", "label": "公元年", "type": "text" },
+        "age": { "key": "age", "label": "年岁", "type": "text" },
+        "category": { "key": "category", "label": "类目", "type": "enum", "enum": ["幼年行迹", "科举应试", "宦途任职", "朝政事务", "家事姻亲", "家事居乡", "家事边事", "家事朝政", "朝政家事", "其他", "家居闲适"], "view": "chip" },
+        "summary": { "key": "summary", "label": "纪事", "type": "text", "view": "block" },
+        "first_person": { "key": "first_person", "label": "亲历", "type": "text" }
+      }
+    },
+    {
+      "id": "lit",
+      "label": "文献资产",
+      "required": false,
+      "tag": "L",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "fields": {
+        "title": { "key": "title", "label": "篇名", "type": "text" },
+        "author": { "key": "author", "label": "作者", "type": "text" },
+        "type": { "key": "type", "label": "体裁", "type": "enum", "enum": ["记", "诗", "序", "其他"], "view": "chip" },
+        "text": { "key": "text", "label": "内容位置", "type": "text", "view": "block" }
+      }
+    },
+    {
+      "id": "trl",
+      "label": "古今翻译",
+      "required": false,
+      "tag": "T",
+      "views": { "list": "card", "detail": ["parallel", "note"] },
+      "filter": "chips",
+      "filterBy": "style",
+      "fields": {
+        "translation": { "key": "translation", "label": "译文", "type": "original" },
+        "style": { "key": "style", "label": "风格", "type": "enum", "enum": ["注释性翻译"], "view": "chip" }
+      }
+    }
+  ],
+  "join": { "layers": ["event", "appt", "rel", "mem", "chr", "lit", "trl"], "primary": "ent" },
+  "volProfile": { "enabled": false, "source": "meta.vol_modes" }
+}

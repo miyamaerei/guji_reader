@@ -1,0 +1,136 @@
+{
+  "bookId": "qubian",
+  "title": "《蘧编》",
+  "subtitle": "明·叶向高 · 纪年体士人年谱",
+  "genre": "明代年谱（纪年编年体）",
+  "stats": {
+    "items": 71,
+    "volumes": 20,
+    "entities": 805,
+    "mentions": 997,
+    "appt": 63,
+    "event": 281,
+    "rel": 338,
+    "lit": 9,
+    "mem": 114,
+    "chr": 71,
+    "trl": 71
+  },
+  "volumes": [
+    {
+      "id": "01",
+      "label": "卷01",
+      "itemCount": 40
+    },
+    {
+      "id": "02",
+      "label": "卷02",
+      "itemCount": 6
+    },
+    {
+      "id": "03",
+      "label": "卷03",
+      "itemCount": 2
+    },
+    {
+      "id": "04",
+      "label": "卷04",
+      "itemCount": 1
+    },
+    {
+      "id": "05",
+      "label": "卷05",
+      "itemCount": 1
+    },
+    {
+      "id": "06",
+      "label": "卷06",
+      "itemCount": 1
+    },
+    {
+      "id": "07",
+      "label": "卷07",
+      "itemCount": 1
+    },
+    {
+      "id": "08",
+      "label": "卷08",
+      "itemCount": 1
+    },
+    {
+      "id": "09",
+      "label": "卷09",
+      "itemCount": 1
+    },
+    {
+      "id": "10",
+      "label": "卷10",
+      "itemCount": 6
+    },
+    {
+      "id": "11",
+      "label": "卷11",
+      "itemCount": 1
+    },
+    {
+      "id": "12",
+      "label": "卷12",
+      "itemCount": 1
+    },
+    {
+      "id": "13",
+      "label": "卷13",
+      "itemCount": 1
+    },
+    {
+      "id": "14",
+      "label": "卷14",
+      "itemCount": 1
+    },
+    {
+      "id": "15",
+      "label": "卷15",
+      "itemCount": 2
+    },
+    {
+      "id": "16",
+      "label": "卷16",
+      "itemCount": 1
+    },
+    {
+      "id": "17",
+      "label": "卷17",
+      "itemCount": 1
+    },
+    {
+      "id": "18",
+      "label": "卷18",
+      "itemCount": 1
+    },
+    {
+      "id": "19",
+      "label": "卷19",
+      "itemCount": 1
+    },
+    {
+      "id": "20",
+      "label": "卷20",
+      "itemCount": 1
+    }
+  ],
+  "build": {
+    "span": {
+      "L1": 788,
+      "L2": 0,
+      "L3": 135,
+      "L0": 74
+    },
+    "span_dropped_overlap": 14,
+    "imputed": {
+      "source": 1944,
+      "confidence": 1944
+    },
+    "generated_at": "2026-10-10T02:53:05.771Z",
+    "generator": "scripts/build_book_data.mjs"
+  }
+}

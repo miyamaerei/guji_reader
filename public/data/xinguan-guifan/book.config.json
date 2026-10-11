@@ -1,0 +1,435 @@
+{
+  "bookId": "xinguan-guifan",
+  "title": "《新官轨范》",
+  "subtitle": "明代官箴书 · 政务规范手册",
+  "genre": "明代官箴书（规范型）",
+  "structure": {
+    "tree": [
+      "volume",
+      "chapter",
+      "item"
+    ],
+    "chunkBy": "volume",
+    "groupSize": 5
+  },
+  "colors": {
+    "primary": "#2b4c7e",
+    "entityTypes": {
+      "person": "#534ab7",
+      "official": "#185fa5",
+      "institution": "#a32d2d",
+      "place": "#0f6e56",
+      "era": "#854f0b",
+      "work": "#993c1d",
+      "unknown": "#888780"
+    }
+  },
+  "layers": [
+    {
+      "id": "ent",
+      "label": "实体",
+      "required": true,
+      "tag": "EN",
+      "views": {
+        "list": "table",
+        "detail": [
+          "table"
+        ]
+      },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "text": {
+          "key": "text",
+          "label": "词形",
+          "type": "text"
+        },
+        "normalized": {
+          "key": "normalized",
+          "label": "归一词",
+          "type": "text"
+        },
+        "type": {
+          "key": "type",
+          "label": "类型",
+          "type": "enum",
+          "enum": [
+            "person",
+            "official",
+            "institution",
+            "place",
+            "era",
+            "work",
+            "unknown"
+          ],
+          "view": "chip"
+        }
+      }
+    },
+    {
+      "id": "event",
+      "label": "事件",
+      "required": true,
+      "tag": "EV",
+      "views": {
+        "list": "card",
+        "detail": [
+          "table"
+        ]
+      },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "type": {
+          "key": "type",
+          "label": "类型",
+          "type": "text"
+        },
+        "who": {
+          "key": "who",
+          "label": "主体",
+          "type": "ent-ref",
+          "refLayer": "ent"
+        },
+        "action": {
+          "key": "action",
+          "label": "行为",
+          "type": "text"
+        },
+        "what": {
+          "key": "what",
+          "label": "对象",
+          "type": "text"
+        },
+        "when": {
+          "key": "when",
+          "label": "时间",
+          "type": "text"
+        },
+        "where": {
+          "key": "where",
+          "label": "地点",
+          "type": "ent-ref",
+          "refLayer": "ent"
+        }
+      }
+    },
+    {
+      "id": "rule",
+      "label": "规则",
+      "required": false,
+      "tag": "R",
+      "views": {
+        "list": "tree",
+        "detail": [
+          "slots",
+          "table"
+        ]
+      },
+      "filter": "tree",
+      "filterTree": "tags",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "type": {
+          "key": "type",
+          "label": "类型组合",
+          "type": "enum",
+          "enum": [
+            "义务型",
+            "程序型",
+            "禁止型",
+            "处罚型",
+            "允许型",
+            "时限型"
+          ],
+          "view": "chip"
+        },
+        "modality": {
+          "key": "modality",
+          "label": "模态",
+          "type": "text",
+          "view": "chip"
+        },
+        "condition": {
+          "key": "condition",
+          "label": "条件",
+          "type": "text",
+          "view": "block"
+        },
+        "subject": {
+          "key": "subject",
+          "label": "主体",
+          "type": "ent-ref",
+          "refLayer": "ent"
+        },
+        "obligation": {
+          "key": "obligation",
+          "label": "义务",
+          "type": "text",
+          "view": "block"
+        },
+        "prohibition": {
+          "key": "prohibition",
+          "label": "禁止",
+          "type": "text",
+          "view": "block"
+        },
+        "permission": {
+          "key": "permission",
+          "label": "允许",
+          "type": "text",
+          "view": "block"
+        },
+        "object": {
+          "key": "object",
+          "label": "对象",
+          "type": "text",
+          "view": "block"
+        },
+        "purpose": {
+          "key": "purpose",
+          "label": "目的",
+          "type": "text",
+          "view": "block"
+        },
+        "deadline": {
+          "key": "deadline",
+          "label": "时限",
+          "type": "text",
+          "view": "block"
+        },
+        "penalty": {
+          "key": "penalty",
+          "label": "处罚",
+          "type": "text",
+          "view": "block"
+        },
+        "prohibited_effect": {
+          "key": "prohibited_effect",
+          "label": "禁忌",
+          "type": "text",
+          "view": "block"
+        }
+      }
+    },
+    {
+      "id": "proc",
+      "label": "流程",
+      "required": false,
+      "tag": "P",
+      "views": {
+        "list": "card",
+        "detail": [
+          "flow",
+          "table"
+        ]
+      },
+      "filter": "chips",
+      "filterBy": "event_type",
+      "groupBy": "event_type",
+      "fields": {
+        "title": {
+          "key": "title",
+          "label": "流程标题",
+          "type": "text"
+        },
+        "trigger": {
+          "key": "trigger",
+          "label": "触发",
+          "type": "text"
+        },
+        "event_type": {
+          "key": "event_type",
+          "label": "事件类型",
+          "type": "text",
+          "view": "chip"
+        },
+        "steps": {
+          "key": "steps",
+          "label": "步骤链",
+          "type": "text",
+          "view": "block"
+        },
+        "states": {
+          "key": "states",
+          "label": "状态机",
+          "type": "text",
+          "view": "block"
+        }
+      }
+    },
+    {
+      "id": "struct",
+      "label": "结构化五维",
+      "required": false,
+      "tag": "S",
+      "views": {
+        "list": "card",
+        "detail": [
+          "tabs",
+          "table"
+        ]
+      },
+      "filter": "chips",
+      "filterBy": "dimension",
+      "groupBy": "dimension",
+      "fields": {
+        "name": {
+          "key": "name",
+          "label": "名称",
+          "type": "text"
+        },
+        "dimension": {
+          "key": "dimension",
+          "label": "维度",
+          "type": "enum",
+          "enum": [
+            "角色",
+            "防弊",
+            "时限",
+            "文簿",
+            "文书"
+          ],
+          "view": "chip"
+        },
+        "purpose": {
+          "key": "purpose",
+          "label": "用途",
+          "type": "text",
+          "view": "block"
+        },
+        "keeper": {
+          "key": "keeper",
+          "label": "保管",
+          "type": "text",
+          "view": "block"
+        },
+        "entry": {
+          "key": "entry",
+          "label": "登记项",
+          "type": "text",
+          "view": "block"
+        },
+        "frequency": {
+          "key": "frequency",
+          "label": "频率",
+          "type": "text"
+        },
+        "check": {
+          "key": "check",
+          "label": "查验",
+          "type": "text",
+          "view": "block"
+        },
+        "anti_fraud": {
+          "key": "anti_fraud",
+          "label": "防弊要点",
+          "type": "text",
+          "view": "block"
+        }
+      }
+    },
+    {
+      "id": "trl",
+      "label": "古今翻译",
+      "required": false,
+      "reserved": true,
+      "tag": "T",
+      "views": {
+        "list": "card",
+        "detail": [
+          "parallel",
+          "note"
+        ]
+      },
+      "filter": "chips",
+      "filterBy": "style",
+      "fields": {
+        "translation": {
+          "key": "translation",
+          "label": "译文",
+          "type": "original"
+        },
+        "style": {
+          "key": "style",
+          "label": "风格",
+          "type": "enum",
+          "enum": [
+            "直译",
+            "意译",
+            "注释性翻译"
+          ],
+          "view": "chip"
+        }
+      }
+    },
+    {
+      "id": "appt",
+      "label": "职官任职",
+      "required": false,
+      "reserved": true,
+      "tag": "AP",
+      "views": {
+        "list": "table",
+        "detail": [
+          "table",
+          "timeline"
+        ]
+      },
+      "filter": "chips",
+      "filterBy": "status",
+      "fields": {
+        "person": {
+          "key": "person",
+          "label": "人物",
+          "type": "ent-ref",
+          "refLayer": "ent"
+        },
+        "office": {
+          "key": "office",
+          "label": "官职",
+          "type": "text"
+        },
+        "when": {
+          "key": "when",
+          "label": "时间",
+          "type": "text"
+        },
+        "status": {
+          "key": "status",
+          "label": "状态",
+          "type": "enum",
+          "enum": [
+            "现任",
+            "致仕",
+            "升迁",
+            "贬谪",
+            "罢黜",
+            "兼领",
+            "暂代",
+            "追赠",
+            "未明"
+          ],
+          "view": "chip"
+        }
+      }
+    }
+  ],
+  "join": {
+    "layers": [
+      "ent",
+      "event",
+      "rule",
+      "proc",
+      "struct"
+    ],
+    "primary": "ent"
+  },
+  "volProfile": {
+    "enabled": false,
+    "source": "meta.vol_modes"
+  }
+}

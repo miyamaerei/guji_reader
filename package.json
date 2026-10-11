@@ -1,0 +1,38 @@
+{
+  "name": "reader-vue",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Vue3 多书知识阅读器",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "data": "node scripts/build_book_data.mjs --all",
+    "data:sd": "node scripts/build_book_data.mjs shuidong-riji",
+    "data:xg": "node scripts/build_book_data.mjs xinguan-guifan",
+    "validate": "node scripts/validate_pack.mjs",
+    "pack": "npm run data && npm run validate",
+    "test": "node scripts/test.mjs",
+    "perf": "node scripts/perf.mjs",
+    "perf:json": "node scripts/perf.mjs --json",
+    "probe": "node scripts/probe_layers.mjs"
+  },
+  "dependencies": {
+    "echarts": "^5.5.1",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.1.10"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.28.2",
+    "@rollup/rollup-win32-x64-msvc": "^4.64.3"
+  }
+}

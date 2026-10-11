@@ -1,0 +1,32 @@
+{
+  "layer": "event",
+  "count": 2,
+  "records": [
+    {
+      "id": "SAMPLE-E-001",
+      "item_id": "01-001",
+      "type": "礼仪",
+      "who": "礼部尚书",
+      "action": "奏定",
+      "what": "朝仪",
+      "when": "洪武初",
+      "where": "",
+      "original": "洪武初，礼部尚书奏定朝仪，命工部立碑于太学。",
+      "source": "原文片段",
+      "confidence": 0.88
+    },
+    {
+      "id": "SAMPLE-E-002",
+      "item_id": "01-002",
+      "type": "人事任免",
+      "who": "叶盛",
+      "action": "巡抚",
+      "what": "两广",
+      "when": "",
+      "where": "两广",
+      "original": "叶盛巡抚两广，奏罢采珠之役。",
+      "source": "原文片段",
+      "confidence": 0.86
+    }
+  ]
+}

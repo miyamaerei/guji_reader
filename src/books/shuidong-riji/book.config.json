@@ -1,0 +1,166 @@
+{
+  "bookId": "shuidong-riji",
+  "title": "《水东日记》",
+  "subtitle": "明·叶盛 · 典章制度类笔记",
+  "genre": "明代笔记（典章制度型）",
+  "structure": {
+    "tree": ["volume", "item"],
+    "chunkBy": "volume",
+    "groupSize": 10
+  },
+  "colors": {
+    "primary": "#7b3f00",
+    "entityTypes": {
+      "person": "#534ab7",
+      "place": "#0f6e56",
+      "official": "#185fa5",
+      "work": "#993c1d",
+      "institution": "#a32d2d",
+      "era": "#854f0b",
+      "posthumous": "#5f5e5a",
+      "unknown": "#888780"
+    }
+  },
+  "layers": [
+    {
+      "id": "ent",
+      "label": "实体",
+      "required": true,
+      "tag": "EN",
+      "views": { "list": "table", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "text": { "key": "text", "label": "词形", "type": "text" },
+        "normalized": { "key": "normalized", "label": "归一词", "type": "text" },
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["person", "place", "official", "work", "institution", "era", "unknown", "posthumous"], "view": "chip" }
+      }
+    },
+    {
+      "id": "event",
+      "label": "事件",
+      "required": true,
+      "tag": "EV",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["朝政", "政变", "军事", "边事", "人事任免", "弹劾", "礼仪", "科举", "文事", "建言", "灾异", "轶事", "祭祀", "经济", "其他"], "view": "chip" },
+        "who": { "key": "who", "label": "主体", "type": "ent-ref", "refLayer": "ent" },
+        "action": { "key": "action", "label": "行为", "type": "text" },
+        "what": { "key": "what", "label": "对象", "type": "text" },
+        "when": { "key": "when", "label": "时间", "type": "text" },
+        "where": { "key": "where", "label": "地点", "type": "ent-ref", "refLayer": "ent" }
+      }
+    },
+    {
+      "id": "appt",
+      "label": "职官任职",
+      "required": false,
+      "tag": "AP",
+      "views": { "list": "table", "detail": ["table", "timeline"] },
+      "filter": "chips",
+      "filterBy": "status",
+      "groupBy": "status",
+      "fields": {
+        "person": { "key": "person", "label": "人物", "type": "ent-ref", "refLayer": "ent" },
+        "office": { "key": "office", "label": "官职", "type": "text" },
+        "institution": { "key": "institution", "label": "机构", "type": "ent-ref", "refLayer": "ent" },
+        "when": { "key": "when", "label": "时间", "type": "text" },
+        "status": { "key": "status", "label": "状态", "type": "enum", "enum": ["现任", "致仕", "升迁", "贬谪", "罢黜", "兼领", "暂代", "追赠", "未明"], "view": "chip" }
+      }
+    },
+    {
+      "id": "reg",
+      "label": "典章制度",
+      "required": false,
+      "tag": "RG",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "name": { "key": "name", "label": "制度名", "type": "text" },
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["朝仪", "官制", "铨选考课", "边政", "军政", "赋役", "礼仪", "科举", "司法", "财政", "其他"], "view": "chip" },
+        "summary": { "key": "summary", "label": "内容摘要", "type": "text" },
+        "institutions": { "key": "institutions", "label": "涉及机构", "type": "ent-ref", "refLayer": "ent" },
+        "offices": { "key": "offices", "label": "涉及职官", "type": "ent-ref", "refLayer": "ent" }
+      }
+    },
+    {
+      "id": "lit",
+      "label": "文献资产",
+      "required": false,
+      "tag": "LI",
+      "views": { "list": "card", "detail": ["table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "title": { "key": "title", "label": "篇名", "type": "text" },
+        "author": { "key": "author", "label": "作者", "type": "ent-ref", "refLayer": "ent" },
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["诏敕圣旨", "碑文", "奏议", "书启", "诗", "记", "题跋", "序", "祭文", "其他"], "view": "chip" },
+        "text": { "key": "text", "label": "原文", "type": "original" }
+      }
+    },
+    {
+      "id": "rel",
+      "label": "人物关系",
+      "required": false,
+      "tag": "RE",
+      "views": { "list": "card", "detail": ["graph", "table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "person_a": { "key": "person_a", "label": "人物甲", "type": "ent-ref", "refLayer": "ent" },
+        "person_b": { "key": "person_b", "label": "人物乙", "type": "ent-ref", "refLayer": "ent" },
+        "type": { "key": "type", "label": "关系类型", "type": "enum", "enum": ["同僚", "师生", "姻亲", "同乡", "同科", "举荐", "弹劾", "恩怨", "上下级", "父子亲属", "敌对", "其他"], "view": "chip" },
+        "direction": { "key": "direction", "label": "方向", "type": "enum", "enum": ["单向", "双向"], "view": "chip" }
+      }
+    },
+    {
+      "id": "nam",
+      "label": "名录谱牒",
+      "required": false,
+      "tag": "NA",
+      "views": { "list": "card", "detail": ["roster", "table"] },
+      "filter": "chips",
+      "filterBy": "type",
+      "groupBy": "type",
+      "fields": {
+        "name": { "key": "name", "label": "名录名", "type": "text" },
+        "type": { "key": "type", "label": "类型", "type": "enum", "enum": ["官员题名", "同僚题名", "迁谪录", "谱牒", "题名记", "其他"], "view": "chip" },
+        "range": { "key": "range", "label": "范围", "type": "text" },
+        "entries": { "key": "entries", "label": "题名表", "type": "text", "view": "block" }
+      }
+    },
+    {
+      "id": "trl",
+      "label": "古今翻译",
+      "required": false,
+      "tag": "TR",
+      "views": { "list": "card", "detail": ["parallel", "note"] },
+      "filter": "chips",
+      "filterBy": "style",
+      "groupBy": "style",
+      "fields": {
+        "translation": { "key": "translation", "label": "译文", "type": "original" },
+        "style": { "key": "style", "label": "风格", "type": "enum", "enum": ["直译", "意译", "注释性翻译"], "view": "chip" },
+        "note": { "key": "note", "label": "注释", "type": "text", "view": "block" }
+      }
+    },
+    {
+      "id": "proc",
+      "label": "流程（v2 制度转流程）",
+      "required": false,
+      "reserved": true,
+      "tag": "PR",
+      "views": { "list": "card", "detail": ["flow", "table"] }
+    }
+  ],
+  "join": { "layers": ["ent", "event", "appt", "reg", "lit", "rel", "nam", "trl"], "primary": "ent" },
+  "volProfile": { "enabled": true, "source": "meta.vol_modes" }
+}

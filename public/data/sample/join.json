@@ -1,0 +1,8 @@
+{
+  "columns": ["ent", "event"],
+  "rows": [
+    { "item_id": "01-001", "volume": "01", "source": "原文", "layer_count": 2, "ids": { "ent": ["ENT-001", "ENT-002", "ENT-003"], "event": ["SAMPLE-E-001"] } },
+    { "item_id": "01-002", "volume": "01", "source": "原文", "layer_count": 2, "ids": { "ent": ["ENT-004", "ENT-005"], "event": ["SAMPLE-E-002"] } },
+    { "item_id": "01-003", "volume": "01", "source": "原文", "layer_count": 1, "ids": { "ent": ["ENT-006", "ENT-007"], "event": [] } }
+  ]
+}

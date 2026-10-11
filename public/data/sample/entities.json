@@ -1,0 +1,9 @@
+{
+  "ENT-001": { "eid": "ENT-001", "normalized": "礼部", "type": "institution", "surfaces": ["礼部"], "count": 1, "first_source": "01-001", "items": ["01-001"], "gid": null },
+  "ENT-002": { "eid": "ENT-002", "normalized": "工部", "type": "institution", "surfaces": ["工部"], "count": 1, "first_source": "01-001", "items": ["01-001"], "gid": null },
+  "ENT-003": { "eid": "ENT-003", "normalized": "太学", "type": "institution", "surfaces": ["太学"], "count": 1, "first_source": "01-001", "items": ["01-001"], "gid": null },
+  "ENT-004": { "eid": "ENT-004", "normalized": "叶盛", "type": "person", "surfaces": ["叶盛", "叶与中"], "count": 1, "first_source": "01-002", "items": ["01-002"], "gid": null },
+  "ENT-005": { "eid": "ENT-005", "normalized": "两广", "type": "place", "surfaces": ["两广"], "count": 1, "first_source": "01-002", "items": ["01-002"], "gid": null },
+  "ENT-006": { "eid": "ENT-006", "normalized": "正统", "type": "era", "surfaces": ["正统"], "count": 1, "first_source": "01-003", "items": ["01-003"], "gid": null },
+  "ENT-007": { "eid": "ENT-007", "normalized": "水东日记", "type": "work", "surfaces": ["水东日记"], "count": 1, "first_source": "01-003", "items": ["01-003"], "gid": null }
+}

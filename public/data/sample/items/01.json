@@ -1,0 +1,42 @@
+{
+  "volume": "01",
+  "items": [
+    {
+      "iid": "01-001",
+      "ordinal": 1,
+      "volume": "01",
+      "text": "洪武初，礼部尚书奏定朝仪，命工部立碑于太学。",
+      "norm": "洪武初，礼部尚书奏定朝仪，命工部立碑于太学。",
+      "translation": "洪武初年，礼部尚书上奏拟定朝会礼仪，命工部在太学立碑。",
+      "spans": [
+        { "id": "ENT-001", "text": "礼部", "type": "institution", "s": 4, "e": 6, "normalized": "礼部", "confidence": 0.97 },
+        { "id": "ENT-002", "text": "工部", "type": "institution", "s": 14, "e": 16, "normalized": "工部", "confidence": 0.96 },
+        { "id": "ENT-003", "text": "太学", "type": "institution", "s": 19, "e": 21, "normalized": "太学", "confidence": 0.95 }
+      ]
+    },
+    {
+      "iid": "01-002",
+      "ordinal": 2,
+      "volume": "01",
+      "text": "叶盛巡抚两广，奏罢采珠之役。",
+      "norm": "叶盛巡抚两广，奏罢采珠之役。",
+      "translation": "叶盛巡抚两广，上奏请求停止采珠的徭役。",
+      "spans": [
+        { "id": "ENT-004", "text": "叶盛", "type": "person", "s": 0, "e": 2, "normalized": "叶盛", "confidence": 0.99 },
+        { "id": "ENT-005", "text": "两广", "type": "place", "s": 4, "e": 6, "normalized": "两广", "confidence": 0.94 }
+      ]
+    },
+    {
+      "iid": "01-003",
+      "ordinal": 3,
+      "volume": "01",
+      "text": "正统十四年，诏修《水东日记》。",
+      "norm": "正统十四年，诏修《水东日记》。",
+      "translation": "正统十四年，下诏修撰《水东日记》。",
+      "spans": [
+        { "id": "ENT-006", "text": "正统", "type": "era", "s": 0, "e": 2, "normalized": "正统", "confidence": 0.93 },
+        { "id": "ENT-007", "text": "水东日记", "type": "work", "s": 9, "e": 13, "normalized": "水东日记", "confidence": 0.92 }
+      ]
+    }
+  ]
+}

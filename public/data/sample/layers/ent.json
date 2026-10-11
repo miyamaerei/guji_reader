@@ -1,0 +1,13 @@
+{
+  "layer": "ent",
+  "count": 7,
+  "records": [
+    { "id": "ENT-001", "item_id": "01-001", "text": "礼部", "normalized": "礼部", "type": "institution", "s": 4, "e": 6, "original": "洪武初，礼部尚书奏定朝仪，命工部立碑于太学。", "source": "原文片段", "confidence": 0.97 },
+    { "id": "ENT-002", "item_id": "01-001", "text": "工部", "normalized": "工部", "type": "institution", "s": 14, "e": 16, "original": "洪武初，礼部尚书奏定朝仪，命工部立碑于太学。", "source": "原文片段", "confidence": 0.96 },
+    { "id": "ENT-003", "item_id": "01-001", "text": "太学", "normalized": "太学", "type": "institution", "s": 19, "e": 21, "original": "洪武初，礼部尚书奏定朝仪，命工部立碑于太学。", "source": "原文片段", "confidence": 0.95 },
+    { "id": "ENT-004", "item_id": "01-002", "text": "叶盛", "normalized": "叶盛", "type": "person", "s": 0, "e": 2, "original": "叶盛巡抚两广，奏罢采珠之役。", "source": "原文片段", "confidence": 0.99 },
+    { "id": "ENT-005", "item_id": "01-002", "text": "两广", "normalized": "两广", "type": "place", "s": 4, "e": 6, "original": "叶盛巡抚两广，奏罢采珠之役。", "source": "原文片段", "confidence": 0.94 },
+    { "id": "ENT-006", "item_id": "01-003", "text": "正统", "normalized": "正统", "type": "era", "s": 0, "e": 2, "original": "正统十四年，诏修《水东日记》。", "source": "原文片段", "confidence": 0.93 },
+    { "id": "ENT-007", "item_id": "01-003", "text": "水东日记", "normalized": "水东日记", "type": "work", "s": 9, "e": 13, "original": "正统十四年，诏修《水东日记》。", "source": "原文片段", "confidence": 0.92 }
+  ]
+}
