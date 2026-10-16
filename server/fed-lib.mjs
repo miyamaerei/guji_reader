@@ -949,23 +949,46 @@ export function deriveItemChunk(db, bookId, volume) {
 /* 层数据                                                               */
 /* ------------------------------------------------------------------ */
 
-/** 层记录：payload 展开 + 书证三件套。full=false 时剔除 original/norm（列表页瘦身） */
-export function deriveLayer(db, bookId, layer, { full = false, itemId = null } = {}) {
+/**
+ * 层记录：payload 展开 + 书证三件套。full=false 时剔除 original/norm（列表页瘦身）。
+ *
+ * 分页（总览页 1.8MB 全量拉取治理）：offset/limit 只取一页，count 恒为该筛选口径的
+ * 全层总数（前端「共 N 条」与 chips 计数同源）；field+value 把 filterBy 筛选下推到
+ * SQL（json_extract 等值，与 deriveEnums 同口径），否则分页页内筛选会凑不满一页。
+ * 不传 offset/limit 时行为与旧版逐字节一致（阅读器详情仍走全量/itemId 反查）。
+ */
+export function deriveLayer(
+  db,
+  bookId,
+  layer,
+  { full = false, itemId = null, field = null, value = null, offset = 0, limit = null } = {},
+) {
   // layer 为前端规范键（如 event）；库内键各书不一（xzl/ysz 用 evt，其余用 event），
   // 查库用 IN 同时匹配原名与别名（layerKeyCandidates），单选必漏书（走查 2026-10-13）
   const cands = layerKeyCandidates(layer)
   const marks = cands.map(() => '?').join(',')
-  const recs = itemId
-    ? db
-        .prepare(
-          `SELECT local_id, item_id, payload FROM records WHERE book_id = ? AND layer_key IN (${marks}) AND item_id = ? ORDER BY local_id`,
-        )
-        .all(bookId, ...cands, itemId)
-    : db
-        .prepare(
-          `SELECT local_id, item_id, payload FROM records WHERE book_id = ? AND layer_key IN (${marks}) ORDER BY item_id, local_id`,
-        )
-        .all(bookId, ...cands)
+  const where = ['book_id = ?', `layer_key IN (${marks})`]
+  const args = [bookId, ...cands]
+  if (itemId) {
+    where.push('item_id = ?')
+    args.push(itemId)
+  }
+  if (field) {
+    // field 不进 SQL 字符串拼接——调用方（HTTP 层）必须先对照 config 白名单；
+    // 这里只把值参数化
+    where.push(`json_extract(payload, '$.${field}') = ?`)
+    args.push(value)
+  }
+  const whereSql = where.join(' AND ')
+  const total = db
+    .prepare(`SELECT COUNT(*) c FROM records WHERE ${whereSql}`)
+    .get(...args).c
+  let pageSql = `SELECT local_id, item_id, payload FROM records WHERE ${whereSql} ORDER BY item_id, local_id`
+  if (limit != null) {
+    pageSql += ' LIMIT ? OFFSET ?'
+    args.push(limit, offset)
+  }
+  const recs = db.prepare(pageSql).all(...args)
   const records = recs.map((r) => {
     const p = parsePayload(r.payload)
     const rec = {
@@ -984,7 +1007,9 @@ export function deriveLayer(db, bookId, layer, { full = false, itemId = null } =
     rec.confidence = typeof p.confidence === 'number' ? p.confidence : null
     return rec
   })
-  return { layer, count: records.length, records }
+  return limit != null
+    ? { layer, count: total, offset, limit, records }
+    : { layer, count: total, records }
 }
 
 export function deriveEntIndex(db, bookId) {

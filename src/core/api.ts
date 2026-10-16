@@ -149,6 +149,22 @@ export const api = {
     const s = q.toString()
     return fetchJson<LayerFile>(`books/${bookId}/layers/${layerId}${s ? `?${s}` : ''}`)
   },
+  /**
+   * 层记录分页（总览页）：limit 启用，count 恒为该筛选口径总数；
+   * field/value 把 filterBy 筛选下推到服务端（否则分页页内筛选凑不满一页）。
+   */
+  layerPage: (
+    bookId: string,
+    layerId: LayerId,
+    page: { offset: number; limit: number; field?: string; value?: string },
+  ) => {
+    const q = new URLSearchParams({ offset: String(page.offset), limit: String(page.limit) })
+    if (page.field) {
+      q.set('field', page.field)
+      q.set('value', page.value ?? '')
+    }
+    return fetchJson<LayerFile>(`books/${bookId}/layers/${layerId}?${q.toString()}`)
+  },
   /** ent 层精简索引（剔除 original 书证，详情需书证时走 layer + itemId + full） */
   entIndex: (bookId: string) => fetchJson<EntIndexFile>(`books/${bookId}/ent-index`),
   entities: (bookId: string) => fetchJson<EntityTable>(`books/${bookId}/entities`),

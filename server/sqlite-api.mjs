@@ -11,7 +11,9 @@
  *   /api/books/:book/meta                       BookMeta（卷/条目/实体/mention 统计）
  *   /api/books/:book/chapters                   目录（卷 → 条目）
  *   /api/books/:book/items?volume=02            卷条目块（原文+译文+实体 span）
- *   /api/books/:book/layers/:layer[?item_id=&full=1]  层记录（默认瘦身，剔除 original）
+ *   /api/books/:book/layers/:layer[?item_id=&full=1][&limit=&offset=&field=&value=]
+ *                                               层记录（默认瘦身，剔除 original；limit 启用分页，
+ *                                               count 恒为该筛选口径总数；field 限该层 config 字段）
  *   /api/books/:book/ent-index                  实体索引（渲染层用，瘦身）
  *   /api/books/:book/entities                   实体表（nodes 聚合）
  *   /api/books/:book/join                       条目-层 关联索引
@@ -73,6 +75,15 @@ db.exec('PRAGMA query_only = ON')
 
 /* ---------------- 缓存（仅静态结构；数据查询不缓存，保证与库一致） ---------------- */
 const configCache = new Map()
+
+function configOf(bookId) {
+  let cfg = configCache.get(bookId)
+  if (!cfg) {
+    cfg = deriveConfig(db, bookId)
+    configCache.set(bookId, cfg)
+  }
+  return cfg
+}
 
 function getBook(bookId) {
   return db.prepare('SELECT * FROM books WHERE book_id = ?').get(bookId)
@@ -184,8 +195,36 @@ function route(req, res, path, params) {
     const itemId = params.get('item_id') || null
     // full=1 且未指定条目时也返回完整书证（谨慎：大层会拉全量 original）
     const full = params.get('full') === '1'
-    const chunk = deriveLayer(db, bookId, layer, { full, itemId })
-    if (!chunk.records.length && !itemId) {
+    // 分页（总览页）：limit 必填才启用；offset 缺省 0；上限 500 防一页拖垮浏览器
+    let offset = 0
+    let limit = null
+    const rawLimit = params.get('limit')
+    if (rawLimit != null) {
+      limit = Number(rawLimit)
+      if (!Number.isFinite(limit) || limit < 1) return fail(res, 400, `limit 须为正整数，收到 ${rawLimit}`)
+      limit = Math.min(limit, 500)
+      const rawOffset = params.get('offset')
+      if (rawOffset != null) {
+        offset = Number(rawOffset)
+        if (!Number.isFinite(offset) || offset < 0)
+          return fail(res, 400, `offset 须为非负整数，收到 ${rawOffset}`)
+      }
+    }
+    // filterBy 下推：field 必须在该层 config 字段白名单内（防任意 json path 进 SQL）
+    let field = null
+    let value = null
+    const rawField = params.get('field')
+    if (rawField) {
+      const cfg = configOf(bookId)
+      const decl = cfg?.layers.find((l) => l.id === layer)
+      if (!decl?.fields?.[rawField]) {
+        return fail(res, 400, `层 ${layer} 无字段 ${rawField}（可用：${Object.keys(decl?.fields ?? {}).join(',')}）`)
+      }
+      field = rawField
+      value = params.get('value') ?? ''
+    }
+    const chunk = deriveLayer(db, bookId, layer, { full, itemId, field, value, offset, limit })
+    if (!chunk.records.length && !itemId && !chunk.count) {
       return fail(res, 404, `书 ${bookId} 无层 ${layer}`)
     }
     return ok(res, chunk)
@@ -210,14 +249,8 @@ function route(req, res, path, params) {
     }
 
     switch (sub) {
-      case 'config': {
-        let cfg = configCache.get(bookId)
-        if (!cfg) {
-          cfg = deriveConfig(db, bookId)
-          configCache.set(bookId, cfg)
-        }
-        return ok(res, cfg)
-      }
+      case 'config':
+        return ok(res, configOf(bookId))
       case 'meta': {
         const meta = deriveMeta(db, bookId)
         return ok(res, meta)

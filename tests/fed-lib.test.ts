@@ -122,3 +122,32 @@ function seed(db: DatabaseSync): void {
   assert.equal(ORIGINAL.slice(fallback.s!, fallback.e!), '乡试', '缺 start/end 回落 indexOf')
   console.log('  ✓ entIndex span 不变量与 indexOf 回落')
 }
+
+/* ---- 4. 分页：offset/limit 取页、count 恒为总数；field/value 筛选下推 ---- */
+{
+  const db = freshDb()
+  seed(db)
+  for (let i = 0; i < 5; i++) {
+    db.prepare(
+      'INSERT INTO records (book_id, layer_key, local_id, item_id, volume, payload) VALUES (?,?,?,?,?,?)',
+    ).run('kzz', 'ent', `03:ENT-${100 + i}`, `03-00${i}`, '03', entPayload({ type: i % 2 ? 'person' : 'institution' }))
+  }
+  const p1 = deriveLayer(db, 'kzz', 'ent', { limit: 3, offset: 0 })
+  assert.equal(p1.count, 7, 'count 是全层总数，不是页内条数')
+  assert.equal(p1.records.length, 3)
+  assert.deepEqual(p1.records.map((r) => r.id), ['01:ENT-0001', '02:ENT-0001', '03:ENT-100'])
+  const p3 = deriveLayer(db, 'kzz', 'ent', { limit: 3, offset: 6 })
+  assert.equal(p3.count, 7)
+  assert.equal(p3.records.length, 1, '末页只剩 1 条')
+  assert.equal(p3.offset, 6)
+  // 页间不重不漏：三页并起来 = 全量
+  const all = [0, 3, 6].flatMap((o) => deriveLayer(db, 'kzz', 'ent', { limit: 3, offset: o }).records)
+  assert.deepEqual(all.map((r) => r.id).sort(), deriveLayer(db, 'kzz', 'ent').records.map((r) => r.id).sort())
+  // 筛选下推：person 只有 2 条，count 同步为筛选口径总数
+  const person = deriveLayer(db, 'kzz', 'ent', { field: 'type', value: 'person', limit: 10 })
+  assert.equal(person.count, 2)
+  assert.ok(person.records.every((r) => r.type === 'person'))
+  // 无 limit 时保持旧形态（不带 offset/limit 字段）
+  assert.ok(!('offset' in deriveLayer(db, 'kzz', 'ent')), '不传 limit 响应形态与旧版一致')
+  console.log('  ✓ 分页 offset/limit/count 与筛选下推')
+}

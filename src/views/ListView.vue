@@ -112,6 +112,10 @@ async function ensureBook(): Promise<void> {
 
 async function ensureLayer(id: LayerId): Promise<void> {
   if (isBuiltin.value) return
+  if (serverPaged.value) {
+    await layers.loadPage(bookId.value, id, { reset: true })
+    return
+  }
   await layers.load(bookId.value, id)
 }
 
@@ -136,6 +140,15 @@ watch(
     await ensureLayer(id)
   },
 )
+/** chips 筛选改服务端参数：切换即重置取首页（tree 模式仍走客户端 filtered） */
+watch(filter, async () => {
+  if (!serverPaged.value) return
+  await layers.loadPage(bookId.value, book.currentLayer, {
+    field: filterField.value || undefined,
+    value: filterField.value ? filter.value : undefined,
+    reset: true,
+  })
+})
 
 function openItem(iid: string): void {
   router.push(`/reader/${bookId.value}?iid=${iid}`)
@@ -199,7 +212,68 @@ const layerFailed = computed(() => layers.failed.has(layerKey.value))
 
 async function retryLayer(): Promise<void> {
   if (isBuiltin.value) return
+  if (serverPaged.value) {
+    await layers.loadPage(bookId.value, book.currentLayer, {
+      field: filterField.value || undefined,
+      value: filterField.value ? filter.value : undefined,
+      reset: true,
+    })
+    return
+  }
   await layers.retry(bookId.value, book.currentLayer)
+}
+
+/**
+ * 服务端分页模式（走查 2026-10-16：ent 层一次全量 1.8MB）。
+ * tree/tags 筛选是「包含/前缀」语义，不下推 SQL——这类层维持全量缓存路径。
+ */
+const serverPaged = computed(() => !isBuiltin.value && !!decl.value && decl.value.filter !== 'tree')
+const filterField = computed(() =>
+  serverPaged.value && filter.value && decl.value?.filterBy ? decl.value.filterBy : '',
+)
+const pageState = computed(() =>
+  serverPaged.value
+    ? layers.pageOf(bookId.value, book.currentLayer, filterField.value, filter.value)
+    : null,
+)
+
+/** 正在渲染的记录：服务端分页页 / 全量缓存（tree 模式先过客户端筛选） */
+const listRecords = computed<LayerRecord[]>(() =>
+  serverPaged.value ? pageState.value?.records ?? [] : filtered.value,
+)
+/** 当前筛选口径的总数（服务端 count 与 chips 计数同源） */
+const listTotal = computed(() => {
+  if (!serverPaged.value) return filtered.value.length
+  const p = pageState.value
+  return p && p.total >= 0 ? p.total : -1
+})
+/** 未筛选层总数（chips 右侧「共 N」） */
+const layerTotal = computed(() => {
+  if (!serverPaged.value) return records.value.length
+  return layers.pageOf(bookId.value, book.currentLayer, '', '')?.total ?? -1
+})
+
+const listLoading = computed(() =>
+  serverPaged.value ? !!pageState.value?.loading : layerLoading.value,
+)
+const listFailed = computed(() =>
+  serverPaged.value ? !!pageState.value?.failed : layerFailed.value,
+)
+
+/** 分页数据集身份：书/层/筛选任一变化 → 列表组件重置滚动与渲染位 */
+const listKey = computed(
+  () => `${bookId.value}/${book.currentLayer}/${filter.value}|${filterTag.value}`,
+)
+
+/** 触底续页：幂等由 store 保证，这里再挡一层在途/取满 */
+function onPageEnd(): void {
+  if (!serverPaged.value) return
+  const p = pageState.value
+  if (!p || p.loading || (p.total >= 0 && p.offset >= p.total)) return
+  void layers.loadPage(bookId.value, book.currentLayer, {
+    field: filterField.value || undefined,
+    value: filterField.value ? filter.value : undefined,
+  })
 }
 </script>
 
@@ -285,7 +359,7 @@ async function retryLayer(): Promise<void> {
           v-if="decl?.filter === 'chips'"
           v-model="filter"
           :items="enumValues"
-          :total="records.length"
+          :total="layerTotal >= 0 ? layerTotal : undefined"
         />
       </div>
 
@@ -314,16 +388,20 @@ async function retryLayer(): Promise<void> {
         </div>
       </div>
 
-      <p v-if="layerLoading && !records.length" class="muted">层数据加载中…</p>
-      <p v-else-if="layerFailed && !records.length" class="muted">
+      <p v-if="listLoading && !listRecords.length" class="muted">层数据加载中…</p>
+      <p v-else-if="listFailed && !listRecords.length" class="muted">
         层数据缺失，<button class="link" @click="retryLayer">点此重试</button>
       </p>
-      <p v-else-if="!records.length" class="muted">层数据尚未加载。</p>
-      <p v-else-if="filtered.length === 0" class="muted empty-filter">
+      <p v-else-if="!listRecords.length && listTotal === 0 && (serverPaged ? !!pageState : !!records.length)" class="muted empty-filter">
         未匹配到任何记录（当前筛选：<b>{{ filterLabel }}</b>）
       </p>
+      <p v-else-if="!listRecords.length" class="muted">层数据尚未加载。</p>
       <p v-else class="muted">
-        共 {{ records.length }} 条<span v-if="filter || filterTag">，筛选后 {{ filtered.length }} 条</span>
+        共 {{ serverPaged ? layerTotal : records.length }} 条<template v-if="filter || filterTag"
+          >，筛选后 {{ listTotal }} 条</template
+        ><span v-if="serverPaged && listTotal > listRecords.length">
+          ｜ 已取 {{ listRecords.length }} 条，滚动续读</span
+        >
       </p>
 
       <table v-if="decl?.views?.list === 'table'" class="tbl">
@@ -335,7 +413,7 @@ async function retryLayer(): Promise<void> {
           </tr>
         </thead>
         <tbody>
-          <InfiniteList :items="filtered">
+          <InfiniteList :items="listRecords" :reset-key="listKey" @reach-end="onPageEnd">
             <template #default="{ item }">
               <tr>
                 <td class="mono">{{ item.id }}</td>
@@ -357,7 +435,7 @@ async function retryLayer(): Promise<void> {
         否则破坏表格语义（分页追加在表格里至少是合法的）。
       -->
       <div v-else class="cards vcards">
-        <VirtualList :items="filtered" :estimate-h="150">
+        <VirtualList :items="listRecords" :estimate-h="150" :reset-key="listKey" @reach-end="onPageEnd">
           <template #default="{ item }">
             <article class="rec">
               <div class="rec-head">

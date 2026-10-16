@@ -248,8 +248,12 @@ export interface LayerRecord extends Evidence {
 
 export interface LayerFile {
   layer: LayerId
+  /** 全层（或筛选口径）总数：分页时 count 不是页内条数 */
   count: number
   records: LayerRecord[]
+  /** 分页响应才有（?limit=） */
+  offset?: number
+  limit?: number
 }
 
 export interface EntityEntry {

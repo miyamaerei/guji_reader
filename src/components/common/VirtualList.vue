@@ -11,11 +11,22 @@
  * 纯逻辑（窗口计算）在 core/virtual.ts，有单测保护。
  *
  * 用法与 InfiniteList 兼容（items + 默认插槽），故调用方无需改。
+ *
+ * ⚠️ 2026-10-16 修复：onMounted 里 `scroller = scroller?.parentElement` 恒为
+ * null（scroller 从未赋过值），滚动监听/测量/视口全部失效——卡片 tab 只渲染
+ * 首窗口的行，滚动不再补渲染。现改为模板 ref 绑定自身外壳（.vlist-wrap 即
+ * 滚动容器），并新增 resetKey（换数据集才重置；分页追加时不清滚动位置）
+ * 与 reach-end（触底向父组件要下一页）。
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { averageHeight, computeWindow } from '@/core/virtual'
 
-const props = withDefaults(defineProps<{ items: T[]; estimateH?: number }>(), { estimateH: 32 })
+const props = withDefaults(
+  defineProps<{ items: T[]; estimateH?: number; resetKey?: string }>(),
+  { estimateH: 32, resetKey: '' },
+)
+
+const emit = defineEmits<{ (e: 'reach-end'): void }>()
 
 /** 行高缓存：只在渲染过的行上有值 */
 const heights = ref(new Map<number, number>())
@@ -23,6 +34,7 @@ const scrollTop = ref(0)
 const viewportH = ref(600)
 /** 是否已量过任何一行；没量过之前一律用 estimateH，避免首帧跳变 */
 const measured = ref(false)
+const wrapEl = ref<HTMLElement | null>(null)
 
 const win = computed(() =>
   computeWindow({
@@ -52,15 +64,27 @@ function spacerBefore(index: number): number {
 }
 
 let scroller: HTMLElement | null = null
-let raf = 0
 
+function syncViewport(): void {
+  if (!scroller) return
+  scrollTop.value = scroller.scrollTop
+  measure()
+  // 触底（距真实内容底 300px 内）：向父组件要下一页。
+  // 用 scrollHeight 而非估算总高——估算偏大时永远到不了「估算底」。
+  if (scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 300)
+    emit('reach-end')
+}
+
+let timer = 0
 function onScroll(): void {
-  // 滚动事件高频，用 rAF 合帧避免重复计算
-  if (raf) return
-  raf = requestAnimationFrame(() => {
-    raf = 0
-    if (scroller) scrollTop.value = scroller.scrollTop
-  })
+  // 滚动事件高频，节流合帧避免重复计算。
+  // 曾用 requestAnimationFrame：隐藏标签页不产帧时 rAF 永不回调，
+  // 挂起的 raf id 还会挡后续事件——整个组件假死；定时器无此耦合。
+  if (timer) return
+  timer = window.setTimeout(() => {
+    timer = 0
+    syncViewport()
+  }, 16)
 }
 
 /** 渲染后量真实行高写回缓存（仅量视口内的行，成本可控） */
@@ -96,9 +120,12 @@ function scrollToIndex(index: number): void {
 
 defineExpose({ scrollToIndex })
 
-/** 条目集变化：高度缓存与滚动位置全部失效 */
+/**
+ * 数据集切换（书/层/筛选）重置测量与滚动位。
+ * 不能 watch items：分页追加也是 items 变化，一重置滚动位就弹回顶部。
+ */
 watch(
-  () => props.items,
+  () => props.resetKey,
   () => {
     heights.value = new Map()
     measured.value = false
@@ -110,7 +137,7 @@ watch(
 let ro: ResizeObserver | null = null
 
 onMounted(() => {
-  scroller = (scroller?.parentElement as HTMLElement) ?? null
+  scroller = wrapEl.value
   if (!scroller) return
   viewportH.value = scroller.clientHeight || 600
   scroller.addEventListener('scroll', onScroll, { passive: true })
@@ -122,7 +149,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  if (raf) cancelAnimationFrame(raf)
+  if (timer) clearTimeout(timer)
   scroller?.removeEventListener('scroll', onScroll)
   ro?.disconnect()
   ro = null
@@ -136,7 +163,7 @@ onBeforeUnmount(() => {
     这与 <table> 语义冲突，所以本组件用于列表/卡片场景；
     表格场景请用 InfiniteList（表格行不宜脱离 tbody 单独定位）。
   -->
-  <div class="vlist-wrap">
+  <div ref="wrapEl" class="vlist-wrap">
     <div class="vlist" :style="{ height: `${win.totalHeight}px` }">
       <div
         v-for="row in slice"
@@ -160,6 +187,12 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* 自身即滚动容器（模板 ref 绑定；曾经的 parentElement 推导恒为 null）。
+   * height:100% 吃满调用方的定高外壳（ListView .vcards），否则高度=内容高，
+   * 视口测算等于总高 → 全量渲染，虚拟滚动失效 */
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .vlist {
   position: relative;

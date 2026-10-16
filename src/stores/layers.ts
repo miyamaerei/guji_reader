@@ -53,6 +53,23 @@ async function loadEntLayer(bookId: string, opts: { itemId?: string; full?: bool
 const key = (bookId: string, layer: LayerId, itemId?: string) =>
   `${bookId}/${layer}${itemId ? `#${itemId}` : ''}`
 
+/** 分页缓存键：按（书/层/筛选字段/值）分桶，切换筛选不互相污染 */
+const pageKey = (bookId: string, layer: LayerId, field: string, value: string) =>
+  `${bookId}/${layer}#${field}=${value}`
+
+/** 服务端分页一页的记录数（与 API limit 上限 500 留余量） */
+export const LAYER_PAGE_SIZE = 200
+
+interface PageState {
+  records: LayerRecord[]
+  /** 该筛选口径的全层总数；-1 = 首页未回 */
+  total: number
+  /** 已取到的条数（下一页的 offset） */
+  offset: number
+  loading: boolean
+  failed: boolean
+}
+
 export const useLayerStore = defineStore('layers', () => {
   const loading = ref<Set<string>>(new Set())
   /** 已加载的层，shallowRef 避免 Vue 深度代理 2 万条记录 */
@@ -62,6 +79,57 @@ export const useLayerStore = defineStore('layers', () => {
   const indexes = shallowRef<Map<string, SearchIndexFile>>(new Map())
   /** 加载失败的层，UI 显示「数据缺失」而不是反复重试 */
   const failed = ref<Set<string>>(new Set())
+  /** 总览页服务端分页状态（键见 pageKey），shallowRef + 整 Map 替换触发响应 */
+  const pages = shallowRef<Map<string, PageState>>(new Map())
+
+  function pageOf(bookId: string, layer: LayerId, field: string, value: string): PageState | null {
+    return pages.value.get(pageKey(bookId, layer, field, value)) ?? null
+  }
+
+  function setPage(k: string, p: PageState): void {
+    const next = new Map(pages.value)
+    next.set(k, p)
+    pages.value = next
+  }
+
+  /**
+   * 取下一页（append）或重置取首页（reset）。
+   * 并发/取满/在途失败时直接返回：触底事件是连发的，必须幂等。
+   */
+  async function loadPage(
+    bookId: string,
+    layer: LayerId,
+    opts: { field?: string; value?: string; reset?: boolean } = {},
+  ): Promise<void> {
+    const field = opts.field ?? ''
+    const value = opts.value ?? ''
+    const k = pageKey(bookId, layer, field, value)
+    const cur = pages.value.get(k)
+    if (cur?.loading) return
+    if (!opts.reset && cur && cur.total >= 0 && cur.offset >= cur.total) return
+    const offset = !cur || opts.reset ? 0 : cur.offset
+    if (!cur || opts.reset) setPage(k, { records: [], total: -1, offset: 0, loading: true, failed: false })
+    else setPage(k, { ...cur, loading: true, failed: false })
+    try {
+      const res = await dataProvider.layerPage(bookId, layer, {
+        offset,
+        limit: LAYER_PAGE_SIZE,
+        ...(field ? { field, value } : {}),
+      })
+      const now = pages.value.get(k)
+      if (!now) return
+      setPage(k, {
+        records: offset === 0 ? res.records : [...now.records, ...res.records],
+        total: res.count,
+        offset: offset + res.records.length,
+        loading: false,
+        failed: false,
+      })
+    } catch {
+      const now = pages.value.get(k)
+      if (now) setPage(k, { ...now, loading: false, failed: true })
+    }
+  }
 
   function peek(bookId: string, layer: LayerId, itemId?: string): LayerCache | undefined {
     return caches.value.get(key(bookId, layer, itemId))
@@ -177,6 +245,7 @@ export const useLayerStore = defineStore('layers', () => {
     caches,
     entityTables,
     joins,
+    pages,
     peek,
     load,
     ensureLoaded,
@@ -184,6 +253,8 @@ export const useLayerStore = defineStore('layers', () => {
     recordsOf,
     recordById,
     recordsByItem,
+    pageOf,
+    loadPage,
     entities,
     join,
     searchIndex,

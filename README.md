@@ -150,7 +150,7 @@ node server/sqlite-api.mjs --db "E:/git/ToolBox/guji/tools/kb-federation/kb.sqli
 | `GET /api/books` | 书架：13 书清单（卷/条目/层数/实体/标注统计 + book_meta 元信息） |
 | `GET /api/books/:book/config·meta·chapters` | 单书配置 / 元信息 / 章节树（卷→条目→层徽标） |
 | `GET /api/books/:book/items?volume=01&q=` | 卷条目原文列表（译文等层随附；参数名是 `volume`，不是 `vol`） |
-| `GET /api/books/:book/layers/:layer` | 分层记录表（职官任职/实体/事件/译文/…，支持类型筛选与分页） |
+| `GET /api/books/:book/layers/:layer` | 分层记录表（职官任职/实体/事件/译文/…）；`?limit=&offset=` 分页（`count` 恒为筛选口径总数）、`?field=&value=` 筛选下推（field 限该层 config 字段）、`?item_id=&full=1` 详情反查；不传 limit 即旧全量形态 |
 | `GET /api/books/:book/join·enums·entities·ent-index·search-index` | 关联视图 / 枚举 / 实体导出 / 实体索引 / 跨层索引 |
 | `GET /api/search?q=&books=` | 检索（空格分隔多个词 AND，`books=all` 跨书联邦检索） |
 | `GET /api/assoc?q=` | 联邦实体关联：canonical 合并组（成员/覆盖书/匹配类型/置信度） |
