@@ -50,6 +50,8 @@ export interface FieldDecl {
   refLayer?: LayerId
   /** 详情块中的呈现方式；hide 表示列表不展示 */
   view?: 'chip' | 'block' | 'hide'
+  /** 卡片列表里隐藏（系统字段 / 全层常量字段，由数据统计派生，见 server/fed-lib.mjs） */
+  hideInList?: boolean
 }
 
 export type ListViewMode = 'table' | 'card' | 'tree'
@@ -68,10 +70,12 @@ export interface LayerDecl {
   /** 层 id，对应 data/layers/<id>.json */
   id: LayerId
   label: string
-  /** 公共要素必配（ent / event） */
+  /** 公共要素必配（ent；event 为柔性公共层，缺失时 UI 显示「待补建」） */
   required: boolean
   /** 目录条目行尾徽标缩写，如 EN / AP / RG */
   tag?: string
+  /** 卡片标题字段名（数据驱动派生，见 server/fed-lib.mjs 的 TITLE_PREFERENCE） */
+  titleKey?: string
   /** 字段声明，驱动列表列与详情块 */
   fields?: Record<string, FieldDecl>
   views?: {
@@ -173,6 +177,11 @@ export interface ChapterNode {
   key: string
   label: string
   count: number
+  /**
+   * 节标题（仅叶子节点有）。来自联邦库 `spine` 表；
+   * 缺省表示该书无节标题真源，此时 label 回落为 key（iid）。
+   */
+  title?: string
   children?: ChapterNode[]
 }
 
@@ -207,6 +216,14 @@ export interface ItemRecord {
   volume: string
   /** 三层目录的书（如《新官轨范》卷→章→条）才有 */
   chapter?: string
+  /**
+   * 节标题（条目标题）。来自联邦库 `spine` 表（C9 §3.6），
+   * 真源是 `<书>/书籍json/<书>_校对版.json` 的 `volumes[].items[].title`。
+   *
+   * 注意与 `items.title` 区分：后者是「正文前 50 字摘要」（load.py:135）。
+   * 缺省表示该书无节标题真源（如《先进遗风》），或 spine 表未建。
+   */
+  title?: string
   /** 原文 */
   text: string
   /** 归一化原文，供检索 */

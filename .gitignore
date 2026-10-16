@@ -8,3 +8,9 @@ dist/
 # 发布/CI 构建依赖已打包好的数据包。仅忽略中间产物。
 public/data/*/_pack/
 scripts/out/
+
+# 本机工具产物（备份包 / 会话缓存 / 截图），不入库
+.backup/
+.dumate/
+.workbuddy-ai/
+*.log

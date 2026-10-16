@@ -6,8 +6,9 @@
  * 详情页展示的是**主键**视角——归一词、全部词形、出现条目列表。
  * 正文里点某一个 mention 跳转过来时，右栏会同时高亮该 mention 所属的所有出现位置。
  *
- * 跨书关联区是 v2 的范围，这里按设计文档 §5.2 的三级判定留出「待补建」位，
- * 而不是假装已经有数据。
+ * 跨书关联：联邦库 canonical 实体合并已在服务端实现（跨书检索页
+ * 「联邦实体关联」面板可按关键词查 canonical 组与引用）；本页是单书
+ * 主键视角，暂不直接挂接跨书分组，文案如实说明，不假装有数据。
  */
 import { computed, ref, watch } from 'vue'
 import { useBookStore } from '@/stores/bookContext'
@@ -86,7 +87,7 @@ const typeColor = computed(() => book.config?.colors.entityTypes?.[entry.value?.
       <section class="cross">
         <h4>跨书关联</h4>
         <p class="muted">
-          v2 范围（全局实体注册表 + 候选加权匹配），本版不实现。字段 <code>gid</code> 已在契约中预留。
+          联邦库已完成 canonical 实体合并：在跨书检索页搜本实体名称，底部「联邦实体关联」面板可查它的跨书分组与引用。本页为单书主键视角，暂不直接展示。
         </p>
       </section>
     </template>
@@ -114,14 +115,16 @@ const typeColor = computed(() => book.config?.colors.entityTypes?.[entry.value?.
 
 .type {
   font-size: 12px;
-  padding: 1px 7px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  padding: 1px 8px;
+  border: 1px solid var(--cinnabar);
+  border-radius: 2px;
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
 .kv {
   display: grid;
-  grid-template-columns: 48px 1fr;
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 4px 8px;
   font-size: 13px;
 }
@@ -161,7 +164,7 @@ h4 {
   font: inherit;
   border: none;
   background: none;
-  color: var(--book-primary);
+  color: var(--cinnabar);
   cursor: pointer;
   padding: 0;
   font-family: ui-monospace, monospace;
@@ -181,6 +184,6 @@ h4 {
 }
 
 .err {
-  color: #a32d2d;
+  color: var(--err);
 }
 </style>

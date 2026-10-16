@@ -16,6 +16,13 @@ export default defineConfig({
     // 反向代理域名要放行，否则线上预览会报「Blocked request. This host is not allowed.」
     host: '0.0.0.0',
     allowedHosts: true,
+    // 联邦数据库模式：/api 转发到只读 SQLite 服务（npm run dev:fed 自动拉起）
+    proxy: {
+      '/api': {
+        target: `http://127.0.0.1:${process.env.API_PORT || '8787'}`,
+        changeOrigin: false,
+      },
+    },
   },
   preview: {
     // 部署沙箱注入 PORT；本地预览退回 4173

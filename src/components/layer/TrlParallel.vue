@@ -61,55 +61,58 @@ const layout = ref<ParallelLayout>('horizontal')
 .chip {
   font-size: 12px;
   padding: 0 8px;
-  border-radius: 10px;
-  background: var(--bg-soft);
+  border-radius: 2px;
+  background: var(--gold-tint);
   border: 1px solid var(--border);
 }
 .mini {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: var(--bg-soft);
-  border-radius: 4px;
+  background: var(--paper);
+  border-radius: 2px;
   padding: 1px 8px;
   cursor: pointer;
 }
 .mini.on {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
-  background: #fff;
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 .pair {
   display: grid;
   gap: 8px;
 }
 .pair.horizontal {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 .pair.vertical {
   grid-template-columns: 1fr;
 }
+/* 原文栏 = 宣纸，译文栏 = 青黛注疏 */
 .col {
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 6px 8px;
-  background: var(--bg);
+  background: var(--paper);
 }
 .col.orig {
-  background: #fbf7ef;
+  background: var(--paper);
+  border-color: var(--border-strong);
 }
 .col.tr {
-  background: #f1f6fb;
+  background: var(--indigo-tint);
+  border-color: #b8c6cd;
 }
 .lab {
   font-size: 11px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
   margin-bottom: 3px;
 }
 .txt {
   margin: 0;
   font-size: 12.5px;
-  line-height: 1.9;
+  line-height: 1.95;
   white-space: pre-wrap;
   word-break: break-word;
 }

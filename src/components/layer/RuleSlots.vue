@@ -115,7 +115,7 @@ const hasRichBehavior = computed(
   margin-right: 6px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--book-primary);
+  color: var(--cinnabar-deep);
 }
 .val {
   font-size: 13px;

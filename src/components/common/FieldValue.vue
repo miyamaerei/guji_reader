@@ -59,20 +59,26 @@ function onClick() {
 
 <style scoped>
 .empty {
-  color: #b4b2a9;
+  color: var(--ink-faint);
 }
 
+/* ent-ref 链接：朱砂 + 虚线下沿（仿朱笔圈点） */
 .ref {
-  color: var(--book-primary);
+  color: var(--cinnabar);
   cursor: pointer;
   border-bottom: 1px dashed currentColor;
 }
 
+.ref:hover {
+  background: var(--cinnabar-tint);
+}
+
+/* 枚举 chip：方笺 */
 .chip {
   display: inline-block;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--bg-soft);
+  padding: 0 7px;
+  border-radius: 2px;
+  background: var(--gold-tint);
   border: 1px solid var(--border);
   font-size: 12px;
   line-height: 1.7;
@@ -81,6 +87,6 @@ function onClick() {
 .block {
   display: block;
   white-space: pre-wrap;
-  line-height: 1.9;
+  line-height: 1.95;
 }
 </style>

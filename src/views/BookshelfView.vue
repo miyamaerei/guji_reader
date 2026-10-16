@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
- * 书架（P2.2）
- * 卡片内容全部来自 public/data/index.json + 各书 meta，不写死任何一本书。
+ * 书架（P2.2 → 联邦模式）
+ * 卡片内容全部来自联邦 API /api/books（书目元信息出自 kb.sqlite 的 book_meta 表），
+ * 不写死任何一本书；副标题缺失时由统计派生兜底。
  */
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -38,13 +39,18 @@ async function open(bookId: string): Promise<void> {
 
 <template>
   <div class="page shelf">
-    <h2>书架</h2>
+    <h2 class="kai">
+      <span class="seal seal-sm" aria-hidden="true">架</span>
+      书架
+      <span class="muted count">共 {{ books.length }} 部</span>
+    </h2>
     <p v-if="book.error" class="muted err">{{ book.error }}</p>
-    <p v-else-if="!books.length" class="muted">暂无可用书籍（数据包尚未生成，先跑 npm run pack）</p>
+    <p v-else-if="!books.length" class="muted">暂无可用书籍（联邦库未返回书目，检查 API 服务是否运行：npm run dev:fed）</p>
 
     <div class="grid">
       <article v-for="b in books" :key="b.bookId" class="card" @click="open(b.bookId)">
-        <div class="title">{{ b.title }}</div>
+        <div class="spine" aria-hidden="true" />
+        <div class="title kai">{{ b.title }}</div>
         <div class="muted sub">{{ b.subtitle }}</div>
         <div v-if="b.genre" class="genre">{{ b.genre }}</div>
         <div class="badges">
@@ -63,48 +69,90 @@ async function open(bookId: string): Promise<void> {
 </template>
 
 <style scoped>
+/* 页题：题签式（印章 + 楷体 + 计数） */
 .shelf h2 {
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shelf h2 .count {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
+/* 册页：纸 card + 赭石双线框 + 顶部书脊丝带 */
 .card {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 45%),
+    var(--paper);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 14px 14px 12px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 1px 4px rgba(94, 72, 38, 0.1);
+  transition: box-shadow 0.15s, transform 0.15s;
 }
 
 .card:hover {
-  border-color: var(--border);
-  border-top-color: var(--book-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px var(--ochre),
+    0 6px 14px rgba(94, 72, 38, 0.18);
+}
+
+/* 书脊：仿线装书脊的丝带，压在卡片上沿 */
+.spine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(90deg, var(--cinnabar) 0%, var(--gold) 55%, var(--ochre) 100%);
+  opacity: 0.85;
 }
 
 .title {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
 .sub {
   font-size: 12px;
 }
 
+/* 体裁：竖排题签贴在右侧 */
 .genre {
-  font-size: 12px;
-  color: var(--text-soft);
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  font-size: 11px;
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
+  border: 1px solid var(--cinnabar);
+  border-radius: 2px;
+  padding: 4px 2px;
+  writing-mode: vertical-rl;
+  letter-spacing: 2px;
+  line-height: 1.2;
 }
 
 .badges {
@@ -123,21 +171,23 @@ async function open(bookId: string): Promise<void> {
 .go {
   font-size: 12px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 10px;
-  color: var(--text);
+  border-radius: 2px;
+  padding: 2px 12px;
+  color: var(--ink-soft);
+  background: var(--paper);
 }
 
 .go:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
 .go.ghost {
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 
 .err {
-  color: #a32d2d;
+  color: var(--err);
 }
 </style>

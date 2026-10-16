@@ -14,6 +14,13 @@ const book = useBookStore()
 const crumbs = useCrumbsStore()
 const route = useRoute()
 
+/**
+ * --book-primary 曾是各书身份色（蓝 #185fa5 等现代饱和色，来自 config.colors），
+ * 「宣纸墨卷」主题下与朱砂/赭石体系冲突；现统一切到全局朱砂（styles.css :root），
+ * 各书身份色只保留在实体着色（colors.entityTypes，ItemText 行内样式）。
+ */
+const bookId = computed(() => String(route.params.book ?? ''))
+
 /** 全局快捷键：按 / 聚焦当前页的搜索框（阅读器顶栏或检索页） */
 function onKeydown(e: KeyboardEvent): void {
   if (e.key !== '/') return
@@ -33,15 +40,15 @@ onMounted(() => {
   window.addEventListener('keydown', onKeydown)
 })
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
-
-const theme = computed(() => ({ '--book-primary': book.primaryColor }))
-const bookId = computed(() => String(route.params.book ?? ''))
 </script>
 
 <template>
-  <div class="app-shell" :style="theme">
+  <div class="app-shell">
     <header class="app-bar">
-      <RouterLink to="/" class="brand">多书知识阅读器</RouterLink>
+      <RouterLink to="/" class="brand kai">
+        <span class="seal seal-sm" aria-hidden="true">阅</span>
+        多书知识阅读器
+      </RouterLink>
       <span v-if="book.config" class="tag">{{ book.config.title }}</span>
       <div class="spacer" />
       <nav v-if="bookId" class="quick">

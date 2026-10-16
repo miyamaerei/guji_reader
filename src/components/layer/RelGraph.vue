@@ -13,19 +13,20 @@ import type { LayerRecord } from '@/core/types'
 
 const props = defineProps<{ record: LayerRecord; all: LayerRecord[] | null }>()
 
+/** 关系簇色板（「宣纸墨卷」：赭金/朱砂/青黛/木轴循环，纸面可辨） */
 const PALETTE = [
-  '#534ab7',
-  '#185fa5',
-  '#0f6e56',
-  '#a32d2d',
-  '#854f0b',
-  '#7b1fa2',
-  '#0d9488',
-  '#9c6644',
-  '#b5486d',
-  '#3f7cac',
-  '#6b8e23',
-  '#c97b1d',
+  '#9c2b23',
+  '#3f5a6b',
+  '#b08d4f',
+  '#6b4a2b',
+  '#7c1f18',
+  '#8a6a35',
+  '#5a5245',
+  '#c9a86a',
+  '#4a6b5a',
+  '#6d8899',
+  '#a85c2e',
+  '#8c7a9e',
 ]
 
 const seedA = textOf(props.record.person_a)
@@ -82,13 +83,13 @@ const option = computed<EChartsOption>(() => {
         draggable: true,
         top: g.categories.length ? 28 : 8,
         force: { repulsion: 120, edgeLength: 90, gravity: 0.08 },
-        label: { show: true, fontSize: 11, color: '#222' },
+        label: { show: true, fontSize: 11, color: '#2e2a23' },
         emphasis: { focus: 'adjacency', label: { fontSize: 12 } },
         categories: g.categories.map((c) => ({ name: c })),
         data: g.nodes.map((n) => ({
           name: n.name,
           category: n.category,
-          itemStyle: { color: n.category >= 0 ? PALETTE[n.category % PALETTE.length] : '#888780' },
+          itemStyle: { color: n.category >= 0 ? PALETTE[n.category % PALETTE.length] : '#9a8c72' },
         })),
         links: g.links.map((l) => ({
           source: l.source,
@@ -97,7 +98,7 @@ const option = computed<EChartsOption>(() => {
           directed: l.directed,
           symbol: l.directed ? ['none', 'arrow'] : ['none', 'none'],
           lineStyle: {
-            color: typeColor.value[l.type] ?? '#999',
+            color: typeColor.value[l.type] ?? '#a08a5c',
             width: 1.4,
             curveness: 0.08,
           },
@@ -156,19 +157,19 @@ onMounted(() => {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: var(--bg-soft);
-  border-radius: 4px;
+  background: var(--paper);
+  border-radius: 2px;
   padding: 1px 8px;
   cursor: pointer;
 }
 .mini.on {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
-  background: #fff;
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 .ctx {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .chart {
   width: 100%;
@@ -176,7 +177,7 @@ onMounted(() => {
 }
 .muted {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
   margin: 0;
 }
 </style>

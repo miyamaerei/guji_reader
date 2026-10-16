@@ -124,14 +124,17 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
   width: 100%;
   padding: 5px 8px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 2px;
   font: inherit;
   font-size: 13px;
   outline: none;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .tree-search:focus {
-  border-color: var(--book-primary);
+  border-color: var(--ochre);
+  box-shadow: 0 0 0 2px var(--gold-tint);
 }
 
 .tree-body {
@@ -140,12 +143,13 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
   min-height: 0;
 }
 
+/* 竹简行：卷=竹（金黄），条=纸签；现行朱砂印底 */
 .tree-row {
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 3px 6px;
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: pointer;
   font-size: 13px;
   line-height: 1.6;
@@ -153,13 +157,14 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
 }
 
 .tree-row:hover {
-  background: var(--bg-soft);
+  background: var(--gold-tint);
 }
 
 .tree-row.cur {
-  background: color-mix(in srgb, var(--book-primary) 12%, transparent);
-  color: var(--book-primary);
+  background: var(--cinnabar-tint);
+  color: var(--cinnabar-deep);
   font-weight: 500;
+  box-shadow: inset 2px 0 0 var(--cinnabar);
 }
 
 .tree-row.disabled {
@@ -170,7 +175,7 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
 .caret {
   width: 12px;
   flex: 0 0 12px;
-  color: var(--text-soft);
+  color: var(--ochre);
   font-size: 10px;
   text-align: center;
 }
@@ -188,17 +193,18 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
   flex: 0 0 auto;
   font-size: 10px;
   padding: 0 3px;
-  border-radius: 3px;
+  border-radius: 2px;
   line-height: 1.5;
 }
 
 .tone-layer {
-  background: color-mix(in srgb, var(--book-primary) 10%, transparent);
-  color: var(--book-primary);
+  background: var(--gold-tint);
+  color: var(--warn-text);
+  border: 1px solid var(--border);
 }
 
 .tone-muted {
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 
 .spacer {
@@ -207,7 +213,7 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
 
 .count {
   flex: 0 0 auto;
-  color: var(--text-soft);
+  color: var(--ink-faint);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -215,6 +221,6 @@ function isCurrent(row: { node: TreeNode; hasChildren: boolean }): boolean {
 .tree-empty {
   margin: 8px 6px;
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 </style>

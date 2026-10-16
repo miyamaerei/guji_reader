@@ -96,16 +96,18 @@ function tabCount(d: string): number {
 
 <style scoped>
 .struct-tabs {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   overflow: hidden;
+  box-shadow: 0 0 0 1px var(--border);
 }
+/* 维度 tab 条：竹简帘 */
 .tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  background: var(--bg-soft);
-  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--gold-tint), var(--paper-deep));
+  border-bottom: 1px solid var(--border-strong);
 }
 .tab {
   font: inherit;
@@ -115,31 +117,32 @@ function tabCount(d: string): number {
   background: transparent;
   padding: 5px 10px;
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
   display: flex;
   align-items: center;
   gap: 4px;
 }
 .tab:hover {
-  background: #fff;
+  background: var(--paper);
 }
 .tab.on {
-  background: #fff;
-  color: var(--book-primary);
+  background: var(--paper);
+  color: var(--cinnabar-deep);
   font-weight: 600;
-  box-shadow: inset 0 -2px 0 var(--book-primary);
+  box-shadow: inset 0 -2px 0 var(--cinnabar);
 }
+/* 计数小印 */
 .n {
   font-size: 10px;
   background: var(--border);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 0 5px;
   line-height: 1.6;
-  color: var(--text-soft);
+  color: #f8efdc;
 }
 .tab.on .n {
-  background: var(--book-primary);
-  color: #fff;
+  background: var(--cinnabar);
+  color: #f8efdc;
 }
 .pane {
   padding: 8px 10px;
@@ -154,10 +157,12 @@ function tabCount(d: string): number {
 .cap {
   font-size: 13px;
   font-weight: 600;
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 1px;
 }
 .sub {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .lnk {
   font: inherit;
@@ -165,39 +170,42 @@ function tabCount(d: string): number {
   border: none;
   background: none;
   padding: 0;
-  color: var(--book-primary);
+  color: var(--cinnabar);
   cursor: pointer;
   border-bottom: 1px dashed currentColor;
 }
 .rows {
   display: grid;
-  grid-template-columns: 62px 1fr;
+  grid-template-columns: 62px minmax(0, 1fr);
   gap: 4px 8px;
   margin: 0;
   font-size: 13px;
 }
 .rows dt {
-  color: var(--text-soft);
+  color: var(--ink-faint);
   font-size: 12px;
 }
 .rows dd {
   margin: 0;
+  min-width: 0;
   line-height: 1.8;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
+/* 判词：朱笔批注条 */
 .ana {
   margin: 6px 0 0;
-  padding: 5px 8px;
-  background: var(--bg-soft);
-  border-left: 3px solid var(--book-primary);
-  border-radius: 3px;
+  padding: 5px 10px;
+  background: var(--cinnabar-tint);
+  border-left: 3px solid var(--cinnabar);
+  border-radius: 0 2px 2px 0;
   font-size: 12.5px;
-  line-height: 1.8;
+  line-height: 1.85;
 }
 .muted {
   margin: 0;
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .sib {
   display: flex;
@@ -210,20 +218,20 @@ function tabCount(d: string): number {
 }
 .lbl {
   font-size: 11px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .chip {
   font: inherit;
   font-size: 11px;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 10px;
+  background: var(--paper);
+  border-radius: 2px;
   padding: 1px 7px;
   cursor: pointer;
-  color: var(--text);
+  color: var(--ink);
 }
 .chip b {
-  color: var(--book-primary);
+  color: var(--cinnabar-deep);
   font-weight: 600;
   margin-right: 2px;
 }

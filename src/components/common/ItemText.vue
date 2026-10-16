@@ -31,7 +31,7 @@ const emit = defineEmits<{ pick: [span: EntitySpan] }>()
 const segments = computed<TextSegment[]>(() => buildSegments(props.text, props.spans ?? []))
 
 function colorOf(span: EntitySpan): string {
-  return props.colors?.[span.type] ?? '#185fa5'
+  return props.colors?.[span.type] ?? '#9c2b23'
 }
 
 function styleOf(seg: TextSegment) {

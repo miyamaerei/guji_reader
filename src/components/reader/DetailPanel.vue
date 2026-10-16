@@ -53,7 +53,9 @@ const routeOf = computed(() => {
     <div class="head">
       <strong>{{ title }}</strong>
       <span class="spacer" />
-      <a v-if="selection" class="mini" :href="`#${routeOf}`">整页</a>
+      <!-- routeOf 自身已带 '#/detail/...' 前缀（core/routes.ts detailHref），
+           这里不能再拼 '#'，否则产出 '#/#/detail/...' 命中 catch-all 弹回书架（走查 2026-10-13） -->
+      <a v-if="selection" class="mini" :href="routeOf">整页</a>
       <button v-if="selection" class="mini" @click="emit('close')">关闭</button>
     </div>
     <div class="body">
@@ -84,12 +86,16 @@ const routeOf = computed(() => {
 </template>
 
 <style scoped>
+/* 右栏：纸面 + 左缘双线 */
 .panel-right {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--bg);
-  border-left: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  border-left: 1px solid var(--border-strong);
+  box-shadow: -1px 0 0 var(--paper-edge);
 }
 
 .head {
@@ -97,8 +103,14 @@ const routeOf = computed(() => {
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-strong);
+  box-shadow: 0 1px 0 var(--paper-edge);
   font-size: 13px;
+}
+
+.head strong {
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 2px;
 }
 
 .spacer {
@@ -109,17 +121,18 @@ const routeOf = computed(() => {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 4px;
-  padding: 1px 6px;
+  background: var(--paper);
+  border-radius: 2px;
+  padding: 1px 7px;
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
   text-decoration: none;
 }
 
 .mini:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
 .body {
@@ -131,5 +144,7 @@ const routeOf = computed(() => {
 
 .hint {
   margin: 0;
+  color: var(--ink-faint);
+  font-size: 13px;
 }
 </style>

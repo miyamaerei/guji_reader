@@ -41,9 +41,10 @@ const pct = computed(() =>
 </template>
 
 <style scoped>
+/* 书证：抄录式引文——左侧赭石界栏 + 淡金底 */
 .evidence {
-  border-left: 2px solid var(--border);
-  padding: 4px 0 4px 8px;
+  border-left: 2px solid var(--ochre);
+  padding: 4px 0 4px 10px;
   margin-top: 6px;
 }
 
@@ -52,17 +53,25 @@ const pct = computed(() =>
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
+/* 「书证」小签：仿藏书印边款 */
 .k {
-  color: var(--text);
+  color: var(--cinnabar-deep);
+  border: 1px solid var(--cinnabar);
+  background: var(--cinnabar-tint);
+  border-radius: 2px;
+  padding: 0 6px;
+  font-size: 11px;
+  letter-spacing: 1px;
 }
 
 .src {
-  padding: 0 5px;
+  padding: 0 6px;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 2px;
+  background: var(--paper);
 }
 
 .conf.none {
@@ -74,16 +83,20 @@ const pct = computed(() =>
   font-size: 12px;
   border: none;
   background: none;
-  color: var(--book-primary);
+  color: var(--cinnabar);
   cursor: pointer;
   padding: 0;
+}
+
+.fold:hover {
+  text-decoration: underline;
 }
 
 .orig {
   margin: 4px 0 0;
   font-size: 13px;
-  line-height: 1.9;
-  color: #44443f;
+  line-height: 1.95;
+  color: #4a4234;
   white-space: pre-wrap;
   word-break: break-word;
 }

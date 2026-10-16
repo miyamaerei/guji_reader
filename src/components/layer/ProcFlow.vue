@@ -24,8 +24,8 @@ import type { LayerRecord } from '@/core/types'
 const props = defineProps<{ record: LayerRecord; all: LayerRecord[] | null }>()
 const emit = defineEmits<{ jump: [iid: string] }>()
 
-/** 起始 / 中间 / 收口 三类节点配色 */
-const CATS = ['#0f6e56', '#185fa5', '#a32d2d']
+/** 起始 / 中间 / 收口 三类节点配色（赭金 / 青黛 / 朱砂） */
+const CATS = ['#b08d4f', '#3f5a6b', '#9c2b23']
 
 const graph = computed(() => buildProcGraph(props.record))
 
@@ -80,10 +80,10 @@ const option = computed<EChartsOption>(() => {
           position: 'bottom',
           distance: 6,
           fontSize: 11,
-          color: '#5f5e5a',
+          color: '#4a4234',
           formatter: (p: { name?: string }) => p.name ?? '',
         },
-        lineStyle: { color: '#8f8d85', width: 1.4, curveness: 0 },
+        lineStyle: { color: '#a08a5c', width: 1.4, curveness: 0 },
         data: g.nodes.map((n, i) => ({
           id: n.id,
           name: n.label,
@@ -150,10 +150,11 @@ onMounted(() => {
 
 <style scoped>
 .proc-flow {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 8px 10px;
-  background: var(--bg-soft);
+  background: var(--paper);
+  box-shadow: 0 0 0 1px var(--border);
 }
 .head {
   display: flex;
@@ -165,11 +166,13 @@ onMounted(() => {
 .cap {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-soft);
+  color: var(--cinnabar-deep);
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 1px;
 }
 .meta {
   font-size: 11px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .legend {
   margin-left: auto;
@@ -177,18 +180,19 @@ onMounted(() => {
   align-items: center;
   gap: 3px;
   font-size: 10px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 2px;
   display: inline-block;
   margin-left: 5px;
 }
-.s0 { background: #0f6e56; }
-.s1 { background: #185fa5; }
-.s2 { background: #a32d2d; }
+/* 步骤簇色（义务/禁止/中性）：朱砂/赭金/青黛 */
+.s0 { background: #9c2b23; }
+.s1 { background: #8a6a35; }
+.s2 { background: #3f5a6b; }
 
 .chart {
   width: 100%;
@@ -205,24 +209,28 @@ onMounted(() => {
 }
 .lbl {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .st {
   font-size: 11px;
-  padding: 0 6px;
-  border-radius: 9px;
+  padding: 0 7px;
+  border-radius: 2px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--paper);
 }
 .chip {
   font: inherit;
   font-size: 11px;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 10px;
-  padding: 1px 7px;
+  background: var(--paper);
+  border-radius: 2px;
+  padding: 1px 8px;
   cursor: pointer;
-  color: var(--book-primary);
+  color: var(--cinnabar-deep);
+}
+.chip:hover {
+  border-color: var(--cinnabar);
+  background: var(--cinnabar-tint);
 }
 .family {
   display: flex;
@@ -236,11 +244,12 @@ onMounted(() => {
 .warn {
   margin: 4px 0 0;
   font-size: 11px;
-  color: #854f0b;
+  color: var(--warn-text);
 }
 .muted {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
   margin: 0;
 }
+
 </style>

@@ -1,14 +1,81 @@
+/* ====================================================================
+ * 「宣纸墨卷」古风主题 —— 全局设计令牌与基础组件
+ *
+ * 设计语言：宣纸底 + 墨色字 + 朱砂印 + 赭石框 + 木轴卷轴。
+ * 旧的变量名（--bg/--bg-soft/--border/--text/--text-soft/--radius/
+ * --book-primary）全部保留并重新取值，让各组件 scoped 样式零改动
+ * 即可继承新面貌；字体同样经 font: inherit 链式继承。
+ *
+ * --book-primary 曾被 App.vue 按书注入现代色（蓝 #185fa5 / 紫 …），
+ * 与古风冲突，现统一定为朱砂；各书身份色只保留在实体着色
+ * （colors.entityTypes，行内样式，不走本表）。
+ * ==================================================================== */
+
 :root {
-  --book-primary: #5f5e5a;
-  --bg: #ffffff;
-  --bg-soft: #f7f6f3;
-  --border: #e3e1dc;
-  --text: #2c2c2a;
-  --text-soft: #6b6a66;
-  --radius: 8px;
-  font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  /* —— 纸 —— */
+  --paper: #f6efdd; /* 宣纸：面板/卡片面 */
+  --paper-deep: #eee3c8; /* 斑驳纸：嵌套块/悬停底 */
+  --paper-edge: #e2d4b2; /* 纸缘：分割线内侧 */
+  --page-bg: #e7dcc0; /* 页面底：略深，让面板浮出来 */
+
+  /* —— 墨 —— */
+  --ink: #2e2a23; /* 正文 */
+  --ink-soft: #6f6350; /* 次要文字 */
+  --ink-faint: #9a8c72; /* 占位/禁用 */
+
+  /* —— 边框 —— */
+  --border: #c9b68a; /* 淡赭：常规分隔 */
+  --border-strong: #a08a5c; /* 强赭：双线外框 */
+
+  /* —— 朱砂（主强调：链接/选中/印章） —— */
+  --cinnabar: #9c2b23;
+  --cinnabar-deep: #7c1f18;
+  --cinnabar-tint: #f0ddd2; /* 朱砂淡底 */
+
+  /* —— 赭石 / 金 —— */
+  --ochre: #8a6a35;
+  --gold: #b08d4f;
+  --gold-tint: #efe0bd;
+
+  /* —— 青黛（辅助强调） —— */
+  --indigo: #3f5a6b;
+  --indigo-tint: #dde5e8;
+
+  /* —— 卷轴木轴 —— */
+  --wood: #6b4a2b;
+  --wood-deep: #472f1a;
+  --wood-light: #8a6742;
+
+  /* —— 语义色（古风化） —— */
+  --warn-bg: #f3e4c2;
+  --warn-border: #b98a2f;
+  --warn-text: #75500d;
+  --err: #a03028;
+  --err-bg: #f3dbcf;
+
+  /* —— 兼容旧名（全站组件在用） —— */
+  --bg: var(--paper);
+  --bg-soft: var(--paper-deep);
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --book-primary: var(--cinnabar);
+
+  --radius: 3px; /* 古物少圆角 */
+
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong',
+    'SimSun', 'Georgia', serif;
   font-size: 14px;
-  color: var(--text);
+  color: var(--ink);
+  /* 古籍排版：正文行距略放，仿刻本呼吸 */
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 楷体只用于题签/品牌等点睛处，不铺正文 */
+.kai,
+.brand {
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', 'BiauKai', '楷体', 'Noto Serif SC',
+    'SimSun', serif;
 }
 
 * {
@@ -17,11 +84,25 @@
 
 body {
   margin: 0;
-  background: var(--bg-soft);
+  /* 宣纸纹理：纤维丝 + 顶部微光 + 四角陈年包浆，全部 CSS 无贴图 */
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 252, 242, 0.55), transparent 70%),
+    radial-gradient(90% 70% at 15% 100%, rgba(150, 118, 66, 0.07), transparent 60%),
+    radial-gradient(90% 70% at 85% 100%, rgba(150, 118, 66, 0.07), transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(122, 94, 46, 0.014) 3px 4px),
+    repeating-linear-gradient(90deg, transparent 0 5px, rgba(122, 94, 46, 0.012) 5px 6px),
+    var(--page-bg);
+  background-attachment: fixed;
 }
 
+/* 定高链：html/body/#app 全部 height:100%，外壳锁死视口。
+ * 阅读器三栏（目录/纸身/详情）的「栏内独立滚动」依赖这条链——曾用
+ * min-height:100vh，结果被正文流内容撑爆（走查 2026-10-13：docH 19035
+ * vs winH 569，.stream 名有内部滚动实为整页滚动，focus 观测全部失效）。 */
+html,
+body,
 #app {
-  min-height: 100vh;
+  height: 100%;
 }
 
 a {
@@ -29,28 +110,140 @@ a {
   text-decoration: none;
 }
 
-.app-shell {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+/* 全局选中色：朱砂淡底 */
+::selection {
+  background: var(--cinnabar-tint);
+  color: var(--cinnabar-deep);
 }
 
+/* 滚动条：木轴细条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood-light) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--wood-light);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--wood);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* 视口锁死：任何栏内滚动容器各自 overflow，绝不放内容出外壳长文档 */
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------
+ * 题头 = 卷轴的天头（深褐织锦 + 回纹），下沿压一道轴棱
+ * ------------------------------------------------------------------ */
 .app-bar {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 20px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 240, 214, 0.045) 0 6px,
+      transparent 6px 12px
+    ),
+    linear-gradient(180deg, #5d4327 0%, #4a3420 60%, #3e2b19 100%);
+  border-bottom: 2px solid var(--wood-deep);
+  box-shadow:
+    0 1px 0 rgba(255, 226, 178, 0.18) inset,
+    0 3px 8px rgba(62, 43, 25, 0.35);
+  color: #f3ead4;
 }
 
 .app-bar .brand {
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 2px;
+  color: #f7efdc;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-bar .brand:hover {
+  color: #fff;
+}
+
+/* 印章：朱砂白文方印，微倾 */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--cinnabar) 0%, var(--cinnabar-deep) 100%);
+  color: #f8efdc;
+  border-radius: 3px;
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(124, 31, 24, 0.55), 0 1px 2px rgba(0, 0, 0, 0.25);
+  transform: rotate(-2deg);
+  user-select: none;
+  flex: none;
+}
+
+.seal-sm {
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+.seal-md {
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+}
+
+/* 题头里的书名 tag：绫边小签 */
+.app-bar .tag {
+  border-color: rgba(243, 234, 212, 0.4);
+  color: #ead9bb;
+  background: rgba(255, 240, 214, 0.08);
+  border-radius: 2px;
 }
 
 .app-bar .spacer {
   flex: 1;
+}
+
+/* 题头导航：笺条 */
+.app-bar .quick a,
+.app-bar .crumbs a {
+  color: #d8c9a6;
+  padding: 2px 6px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+}
+
+.app-bar .quick a:hover,
+.app-bar .crumbs a:hover {
+  color: #fdf6e6;
+  border-color: rgba(243, 234, 212, 0.35);
+  background: rgba(255, 240, 214, 0.08);
+}
+
+.app-bar .quick a.router-link-active {
+  color: #fdf6e6;
+  border-bottom-color: var(--gold);
 }
 
 .crumbs {
@@ -58,11 +251,11 @@ a {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--text-soft);
+  color: #c9b88f;
 }
 
 .crumbs .sep {
-  color: #b4b2a9;
+  color: rgba(216, 201, 166, 0.55);
 }
 
 /* 阅读器三栏需要占满剩余高度，所以这里不做 padding，由各视图自己控制 */
@@ -84,11 +277,19 @@ a {
   padding: 20px;
 }
 
+/* --------------------------------------------------------------------
+ * panel：宣纸卡片 + 赭石双线框（外细内粗，1px 缝）
+ * ------------------------------------------------------------------ */
 .panel {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0) 45%),
+    var(--paper);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 16px;
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 1px 5px rgba(94, 72, 38, 0.1);
 }
 
 .muted {
@@ -96,19 +297,172 @@ a {
   font-size: 13px;
 }
 
+/* 笺条 tag：赭边纸底 */
 .tag {
   display: inline-block;
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 1px 7px;
+  border-radius: 2px;
   border: 1px solid var(--border);
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
+  background: var(--paper);
+  line-height: 1.6;
+}
+
+/* 朱砂 tag（计数/强调） */
+.tag-cinnabar {
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
 .tag-pending {
-  border-color: #ef9f27;
-  color: #854f0b;
-  background: #faeeda;
+  border-color: var(--warn-border);
+  color: var(--warn-text);
+  background: var(--warn-bg);
+}
+
+/* 通用小按钮（各组件 .mini 的视觉基准，scoped 里可再覆盖） */
+.mini,
+.go {
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 2px 10px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: pointer;
+  line-height: 1.7;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.mini:hover,
+.go:hover {
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
+}
+
+/* 输入框：纸上天线 */
+input.kw,
+input[type='text'],
+input[type='search'] {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+}
+
+input.kw:focus,
+input[type='text']:focus,
+input[type='search']:focus {
+  border-color: var(--ochre);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--gold-tint);
+}
+
+input::placeholder {
+  color: var(--ink-faint);
+}
+
+/* --------------------------------------------------------------------
+ * 卷轴框架：天头（织锦） + 纸身 + 地脚，两端木轴
+ * 用法：<div class="scroll-frame"><div class="roller" /> … </div>
+ * ------------------------------------------------------------------ */
+.scroll-frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 2px 8px rgba(94, 72, 38, 0.12);
+  overflow: hidden;
+}
+
+/* 天头：深褐织锦，压银线 */
+.scroll-head {
+  flex: none;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #f0e5cc;
+  letter-spacing: 1px;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 240, 214, 0.05) 0 6px,
+      transparent 6px 12px
+    ),
+    linear-gradient(180deg, #5d4327, #46311d);
+  border-bottom: 2px solid var(--wood-deep);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 地脚：与天头呼应 */
+.scroll-foot {
+  flex: none;
+  padding: 4px 14px;
+  font-size: 12px;
+  color: #d8c9a6;
+  background: linear-gradient(180deg, #46311d, #382715);
+  border-top: 2px solid var(--wood-deep);
+}
+
+/* 木轴：卷轴两端的轴头（高光+木纹） */
+.roller {
+  flex: none;
+  height: 12px;
+  background: linear-gradient(
+    180deg,
+    var(--wood-light) 0%,
+    var(--wood) 35%,
+    var(--wood-deep) 100%
+  );
+  box-shadow:
+    0 0 0 1px var(--wood-deep),
+    0 1px 3px rgba(62, 43, 25, 0.45);
+  position: relative;
+}
+
+/* 轴头两端露出纸外的轴帽 */
+.roller::before,
+.roller::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--wood-deep) 90%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.roller::before {
+  left: -6px;
+}
+
+.roller::after {
+  right: -6px;
+}
+
+/* 竖排题签（书签/门类条） */
+.vtext {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 3px;
+}
+
+/* 分隔：鱼尾纹式虚线 */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 10px 0;
 }
 
 /* —— 移动端（P2.9） —— */

@@ -188,6 +188,7 @@ defineExpose({ scrollTop, measure })
 </template>
 
 <style scoped>
+/* 卷轴纸身：填满 col-body 剩余高度，独立滚动 */
 .stream {
   overflow-y: auto;
   padding: 12px;
@@ -195,7 +196,12 @@ defineExpose({ scrollTop, measure })
   flex-direction: column;
   gap: 10px;
   min-height: 0;
-  background: var(--bg-soft);
+  flex: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  border-left: 1px solid var(--border-strong);
+  border-right: 1px solid var(--border-strong);
 }
 
 .empty {

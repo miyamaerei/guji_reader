@@ -2,9 +2,10 @@
  * 要素（层）schema 解析（P0.3）
  *
  * 三级启用判定（设计文档 §5.2）：
- *  public   —— 公共要素，所有书必配：条目底座 / 实体 / 事件 / 跨层索引 / 检索
+ *  public   —— 公共要素，所有书必配：条目底座 / 实体（事件为柔性层，见下）
  *  declared —— book.config.json 声明即启用（水东 appt/reg/lit/rel/nam/trl；新官 rule/proc/struct）
- *  reserved —— 视图组件已注册、数据缺失，列表显示「待补建」（新官 TRL/APPT；水东 proc v2）
+ *  reserved —— 视图组件已注册、数据缺失，列表显示「待补建」（新官 TRL/APPT；水东 proc v2；
+ *              联邦 8 书中无事件层的政书类——吕公实政录 ent/rule/struct、政学录 evt/reg/rule/struct）
  *
  * 前端不写死要素清单：导航 tab、筛选维度、详情块全部由此解析生成。
  */
@@ -17,8 +18,17 @@ import type {
   ListViewMode,
 } from './types'
 
-/** 公共必配层（数据层） */
-export const PUBLIC_LAYER_IDS: LayerId[] = ['ent', 'event']
+/**
+ * 公共必配层（数据层）：所有书必须真正建层。
+ * 早期归入的 event 已降级为柔性层（政书类文本如《吕公实政录》《政学录》无事件层是正常交付事实）。
+ */
+export const PUBLIC_LAYER_IDS: LayerId[] = ['ent']
+
+/**
+ * 柔性公共层：有数据则正常启用；数据缺失时不报错，
+ * 由 UI 合成 reserved 占位（列表显示「待补建」），避免「配置写错 → 页面白屏」的强校验误伤合法书。
+ */
+export const FLEXIBLE_PUBLIC_LAYER_IDS: LayerId[] = ['event']
 
 /** 内建 tab：不属于任何「层文件」，但参与导航 */
 export const BUILTIN_TAB_IDS = ['item', 'join'] as const
@@ -95,8 +105,33 @@ export function isPublicLayer(id: LayerId): boolean {
   return PUBLIC_LAYER_IDS.includes(id)
 }
 
+/**
+ * 在**副本**上补齐柔性公共层的 reserved 占位声明（不改原 config）。
+ * 例如《吕公实政录》layers 为 ent/rule/struct，合成 `{ id: 'event', reserved: true }`，
+ * 使导航出现「事件（待补建）」tab 而非缺失。
+ */
+export function withFlexibleLayers(config: BookConfig): BookConfig {
+  const missing = FLEXIBLE_PUBLIC_LAYER_IDS.filter(
+    (fid) => !config.layers.some((l) => l.id === fid),
+  )
+  if (missing.length === 0) return config
+  return {
+    ...config,
+    layers: [
+      ...config.layers,
+      ...missing.map((fid) => ({
+        id: fid,
+        label: defaultLabel(fid),
+        required: false,
+        reserved: true,
+      })),
+    ],
+  }
+}
+
 export function resolveLayer(config: BookConfig, id: LayerId): ResolvedLayer | null {
-  const decl = config.layers.find((l) => l.id === id)
+  const cfg = withFlexibleLayers(config)
+  const decl = cfg.layers.find((l) => l.id === id)
   if (!decl) return null
   const status: LayerStatus = isPublicLayer(id)
     ? 'public'
@@ -112,7 +147,7 @@ export function resolveLayer(config: BookConfig, id: LayerId): ResolvedLayer | n
 }
 
 export function resolveLayers(config: BookConfig): ResolvedLayer[] {
-  return config.layers
+  return withFlexibleLayers(config).layers
     .map((l) => resolveLayer(config, l.id))
     .filter((l): l is ResolvedLayer => l !== null)
 }

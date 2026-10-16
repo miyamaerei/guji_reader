@@ -46,33 +46,35 @@ function pick(v: string) {
   gap: 6px;
 }
 
+/* 筛选签：方笺（古印弃圆角胶囊），选中 = 朱砂白文 */
 .chip {
   font: inherit;
   font-size: 12px;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fff;
+  border-radius: 2px;
+  background: var(--paper);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: inherit;
+  color: var(--ink-soft);
 }
 
 .chip:hover {
-  border-color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
 }
 
 .chip.on {
-  background: var(--book-primary);
-  border-color: var(--book-primary);
-  color: #fff;
+  background: var(--cinnabar);
+  border-color: var(--cinnabar-deep);
+  color: #f8efdc;
 }
 
 .chip em {
   font-style: normal;
-  opacity: 0.6;
+  opacity: 0.65;
   font-variant-numeric: tabular-nums;
 }
 </style>

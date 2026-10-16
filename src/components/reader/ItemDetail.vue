@@ -65,9 +65,11 @@ async function toggle(layer: LayerId) {
   }
   next.add(layer)
   expanded.value = next
-  if (!layers.peek(book.currentBookId, layer)) {
+  if (!layers.peek(book.currentBookId, layer, props.iid)) {
     busy.value = new Set([...busy.value, layer])
-    await layers.load(book.currentBookId, layer)
+    // 带 itemId + full：联邦模式下只有带 itemId（或 full=1）的响应才回传
+    // original 书证，否则详情里「原文 / 书证」永远为空（走查 2026-10-13 A5）
+    await layers.load(book.currentBookId, layer, { itemId: props.iid, full: true })
     busy.value = new Set([...busy.value].filter((x) => x !== layer))
   }
 }
@@ -152,9 +154,10 @@ function titleOf(rec: LayerRecord, layer: LayerId): string {
 }
 
 .layer {
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
   overflow: hidden;
+  box-shadow: 0 0 0 1px var(--border);
 }
 
 .head {
@@ -163,7 +166,7 @@ function titleOf(rec: LayerRecord, layer: LayerId): string {
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  background: var(--bg-soft);
+  background: var(--gold-tint);
   border: none;
   font: inherit;
   font-size: 13px;
@@ -173,7 +176,7 @@ function titleOf(rec: LayerRecord, layer: LayerId): string {
 
 .caret {
   width: 12px;
-  color: var(--text-soft);
+  color: var(--ochre);
   font-size: 10px;
 }
 
@@ -215,7 +218,7 @@ function titleOf(rec: LayerRecord, layer: LayerId): string {
   font-family: ui-monospace, monospace;
   border: none;
   background: none;
-  color: var(--book-primary);
+  color: var(--cinnabar);
   cursor: pointer;
   padding: 0;
 }
@@ -229,7 +232,7 @@ function titleOf(rec: LayerRecord, layer: LayerId): string {
 
 .fields {
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 2px 8px;
   margin: 4px 0 0;
   font-size: 13px;
@@ -241,7 +244,9 @@ function titleOf(rec: LayerRecord, layer: LayerId): string {
 
 .fields dd {
   margin: 0;
+  min-width: 0;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .tip {

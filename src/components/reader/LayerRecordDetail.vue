@@ -150,50 +150,60 @@ const noteText = computed(() => {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 4px;
-  padding: 2px 8px;
+  background: var(--paper);
+  border-radius: 2px;
+  padding: 2px 9px;
   cursor: pointer;
-  color: var(--book-primary);
+  color: var(--cinnabar-deep);
 }
 
+.jump:hover {
+  border-color: var(--cinnabar);
+  background: var(--cinnabar-tint);
+}
+
+/* 同 ListView：值列必须 minmax(0, 1fr)，否则长文本会把网格撑爆溢出面板 */
 .fields {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 72px minmax(0, 1fr);
   gap: 4px 8px;
   margin: 0;
   font-size: 13px;
 }
 
 .fields dt {
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 
 .fields dd {
   margin: 0;
+  min-width: 0;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .err {
-  color: #a32d2d;
+  color: var(--err);
 }
 
 .blk {
   margin-top: 10px;
 }
 
+/* 注疏块：淡青黛底 */
 .note-block {
   margin: 10px 0 0;
-  padding: 6px 8px;
-  background: var(--bg-soft);
-  border-radius: 4px;
+  padding: 6px 10px;
+  background: var(--indigo-tint);
+  border-left: 2px solid var(--indigo);
+  border-radius: 0 2px 2px 0;
   font-size: 12.5px;
-  line-height: 1.8;
+  line-height: 1.85;
 }
 
 .note-block .lab {
   font-size: 11px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
   margin-right: 6px;
 }
 </style>

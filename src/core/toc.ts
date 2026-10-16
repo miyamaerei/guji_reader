@@ -79,7 +79,9 @@ export function buildTocTree(
 
     if (useChapter) {
       for (const chap of vol.children ?? []) {
-        const leaves = (chap.children ?? []).map((it) => leaf(it.key, it.count, opts))
+        const leaves = (chap.children ?? []).map((it) =>
+          leaf(it.key, it.count, opts, it.title),
+        )
         for (const l of leaves) {
           index.volumeOf.set(l.iid as string, volKey)
           index.containerOf.set(l.iid as string, chap.key)
@@ -87,7 +89,9 @@ export function buildTocTree(
         groupsUnder.push({ key: chap.key, label: chap.label, leaves })
       }
     } else {
-      const leaves = (vol.children ?? []).map((it) => leaf(it.key, it.count, opts))
+      const leaves = (vol.children ?? []).map((it) =>
+        leaf(it.key, it.count, opts, it.title),
+      )
       for (const l of leaves) {
         index.volumeOf.set(l.iid as string, volKey)
         index.containerOf.set(l.iid as string, volKey)
@@ -145,12 +149,21 @@ export function buildIidVolumeMap(chapters: ChapterNode[]): Map<string, string> 
   return m
 }
 
-function leaf(iid: string, count: number, opts: TocBuildOptions): TreeNode {
+function leaf(
+  iid: string,
+  count: number,
+  opts: TocBuildOptions,
+  title?: string,
+): TreeNode {
+  // label 用节标题（来自联邦库 spine 表，spineTitlesOf）；
+  // 无节标题真源的书回落 iid。key 恒为 iid —— 跳转/定位不受影响。
+  const label = title && title.trim() ? title.trim() : iid
   return {
     key: iid,
-    label: iid,
+    label,
     count: count,
     iid,
+    ...(title && title.trim() ? { title: title.trim() } : {}),
     tags: opts.tagOf?.(iid) ?? [],
   }
 }

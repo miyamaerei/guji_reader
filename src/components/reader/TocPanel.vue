@@ -6,7 +6,7 @@
  * 因此改 groupSize 不需要重跑打包器。
  * 行尾徽标来自 join.json（该条目命中了哪些层），不是写死的 R/P/E/S/T。
  */
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TreeNav from '@/components/common/TreeNav.vue'
 import { layerTags } from '@/core/layerSchema'
 import { buildTocTree } from '@/core/toc'
@@ -16,7 +16,7 @@ import { useLayerStore } from '@/stores/layers'
 import { useTocStore } from '@/stores/toc'
 import type { ChapterNode, JoinRow } from '@/core/types'
 
-const props = defineProps<{ chapters: ChapterNode[] }>()
+const props = defineProps<{ bookId: string; chapters: ChapterNode[] }>()
 const emit = defineEmits<{ select: [iid: string] }>()
 
 const book = useBookStore()
@@ -26,11 +26,27 @@ const layers = useLayerStore()
 const rowMap = ref<Map<string, JoinRow>>(new Map())
 const ready = ref(false)
 
-onMounted(async () => {
-  const jf = await layers.join(book.currentBookId)
-  rowMap.value = new Map(jf.rows.map((r) => [r.item_id, r]))
-  ready.value = true
-})
+/**
+ * join 行（目录徽标）按**路由 bookId** 取，不用 book.currentBookId——
+ * 子组件 mounted 早于父级 ReaderView 的 setBook，读 currentBookId 会拿到 ''
+ * （GET /api/books//join 404 + Vue mounted warn，每次进阅读器必现，走查 2026-10-13）。
+ * 同时监听 bookId 变化：同路由换书时组件不重建，旧书的 join 行必须换掉。
+ */
+watch(
+  () => props.bookId,
+  async (id) => {
+    if (!id) return
+    ready.value = false
+    try {
+      const jf = await layers.join(id)
+      rowMap.value = new Map(jf.rows.map((r) => [r.item_id, r]))
+    } catch {
+      rowMap.value = new Map()
+    }
+    ready.value = true
+  },
+  { immediate: true },
+)
 
 const tags = computed(() => (book.config ? layerTags(book.config) : []))
 
@@ -101,12 +117,16 @@ const focusMode = computed(() => {
 </template>
 
 <style scoped>
+/* 左栏：纸面 + 右缘双线（与卷轴纸身相接） */
 .toc {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--bg);
-  border-right: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  border-right: 1px solid var(--border-strong);
+  box-shadow: 1px 0 0 var(--paper-edge);
 }
 
 .toc > :deep(.tree) {
@@ -120,36 +140,45 @@ const focusMode = computed(() => {
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-strong);
+  box-shadow: 0 1px 0 var(--paper-edge);
   font-size: 13px;
+}
+
+.head strong {
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 2px;
 }
 
 .spacer {
   flex: 1;
 }
 
+/* 卷模式徽标：朱砂小印 */
 .vbadge {
   font-size: 11px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--book-primary);
-  color: #fff;
+  padding: 0 7px;
+  border-radius: 2px;
+  background: var(--cinnabar);
+  color: #f8efdc;
   line-height: 1.7;
+  border: 1px solid var(--cinnabar-deep);
 }
 
 .mini {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 4px;
-  padding: 1px 6px;
+  background: var(--paper);
+  border-radius: 2px;
+  padding: 1px 7px;
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
 .mini:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 </style>

@@ -18,19 +18,25 @@ import type { LayerRecord } from '@/core/types'
 const props = defineProps<{ record: LayerRecord; all: LayerRecord[] | null }>()
 const emit = defineEmits<{ jump: [iid: string] }>()
 
+/** 任职状态色板（「宣纸墨卷」主题：赭金/朱砂/青黛/木轴色系） */
 const STATUS_COLORS: Record<string, string> = {
-  现任: '#185fa5',
-  致仕: '#0f6e56',
-  升迁: '#534ab7',
-  贬谪: '#a32d2d',
-  罢黜: '#7b1fa2',
-  兼领: '#0d9488',
-  暂代: '#854f0b',
-  追赠: '#9c6644',
-  未明: '#888780',
+  现任: '#9c2b23',
+  致仕: '#3f5a6b',
+  升迁: '#b08d4f',
+  贬谪: '#7c1f18',
+  罢黜: '#5a5245',
+  兼领: '#6d8899',
+  暂代: '#8a6a35',
+  追赠: '#c9a86a',
+  未明: '#9a8c72',
 }
 function colorOf(status: string): string {
-  return STATUS_COLORS[status] ?? '#888780'
+  return STATUS_COLORS[status] ?? '#9a8c72'
+}
+
+/** 段内文字色：深色段用米白字，浅色段（金/淡金）用墨字 */
+function labelColorOf(status: string): string {
+  return ['现任', '贬谪', '致仕', '罢黜', '兼领', '暂代'].includes(status) ? '#f8efdc' : '#2e2a23'
 }
 
 const personText = textOf(props.record.person)
@@ -76,7 +82,7 @@ const option = computed<EChartsOption>(() => {
             show: true,
             position: 'inside',
             formatter: s.office ? s.office.slice(0, 6) : s.status,
-            color: '#fff',
+            color: labelColorOf(s.status),
             fontSize: 10,
           },
           appt: s,
@@ -126,11 +132,14 @@ onMounted(() => {
 }
 .cap {
   font-size: 13px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
+/* 人物名：楷书 */
 .name {
   font-weight: 600;
-  color: var(--text);
+  color: var(--cinnabar-deep);
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 1px;
 }
 .chart {
   width: 100%;
@@ -144,25 +153,25 @@ onMounted(() => {
 }
 .lbl {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 .chip {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: var(--bg-soft);
-  border-radius: 10px;
+  background: var(--paper);
+  border-radius: 2px;
   padding: 0 8px;
   cursor: pointer;
 }
 .chip.on {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
-  background: #fff;
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 .muted {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
   margin: 4px 0 0;
 }
 </style>

@@ -153,6 +153,28 @@ function onReachEnd(): void {
   if (next) void loadVolume(next)
 }
 
+/**
+ * 进入阅读器 / 切换书籍后的首屏加载：?iid 定位、?vol 指定卷、否则首卷。
+ *
+ * onMounted 与 watch(bookId) 共用——曾经只有 onMounted 加载首卷，同路由
+ * 参数变化（reader/sdr → reader/wzz）时组件不重新 mount，watcher 只重置了
+ * chunkMap 却不加载，页面停在「已加载 0/N 卷 · 0 条」的空白态（走查 2026-10-13）。
+ */
+async function enterInitialVolume(): Promise<void> {
+  const wantVol = String(route.query.vol ?? '')
+  const wantIid = String(route.query.iid ?? '')
+  if (wantIid) {
+    await jumpTo(wantIid)
+    return
+  }
+  const first = volumes.value.find((v) => v.id === wantVol) ?? volumes.value[0]
+  if (first) {
+    await loadVolume(first.id)
+    // 目录跟着展开到起始卷：?vol=06 却停在卷一，用户会以为没生效
+    toc.openOnly(first.id)
+  }
+}
+
 /** 层字段里的实体引用：按名称反查主键 */
 async function onRef(layer: string, value: string): Promise<void> {
   if (layer !== 'ent' || !value) return
@@ -188,17 +210,7 @@ onMounted(async () => {
   await layers.join(bookId.value)
   window.addEventListener('keydown', onReaderKeydown)
   // 深链：?vol=NN 指定起始卷；?iid=xx 直接定位到条目
-  const wantVol = String(route.query.vol ?? '')
-  const wantIid = String(route.query.iid ?? '')
-  if (wantIid) await jumpTo(wantIid)
-  else {
-    const first = volumes.value.find((v) => v.id === wantVol) ?? volumes.value[0]
-    if (first) {
-      await loadVolume(first.id)
-      // 目录跟着展开到起始卷：?vol=06 却停在卷一，用户会以为没生效
-      toc.openOnly(first.id)
-    }
-  }
+  await enterInitialVolume()
   // 搜索结果回跳：面包屑里带上「搜索结果」
   const sq = String(route.query.sq ?? '')
   if (sq) {
@@ -214,7 +226,12 @@ watch(bookId, async () => {
   chunkMap.value = new Map()
   selection.value = null
   spanIssues.value = 0
+  // 旧书 chapters 必须清掉：iidVolume 由它推导，残留会让 jumpTo 定位错卷
+  chapters.value = []
   await ensureBook()
+  // 切书后同样要走首屏加载（iid/vol 的 watch 只在查询串变化时触发，
+  // 单纯换书时只有本 watcher 在跑）
+  await enterInitialVolume()
 })
 
 watch(
@@ -288,23 +305,28 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onReaderKeydown))
 
       <div class="grid">
         <div class="col-toc" :class="{ 'mobile-open': mobilePanel === 'toc' }">
-          <TocPanel :chapters="chapters" @select="jumpTo($event)" />
+          <TocPanel :book-id="bookId" :chapters="chapters" @select="jumpTo($event)" />
         </div>
-        <ItemStream
-          :items="items"
-          :colors="colors"
-          :active-iid="activeIid"
-          :highlight-eid="highlightEid"
-          :scroll-to="scrollTo"
-          :loading="loading"
-          :has-more="hasMore"
-          :force-show-trans="ui.showTranslation"
-          @select="onSelect"
-          @pick="onPick"
-          @focus="onFocus"
-          @reach-end="onReachEnd"
-          @scrolled="scrollTo = null"
-        />
+        <!-- 中栏 = 卷轴：上轴头 + 纸身（ItemStream）+ 下轴头 -->
+        <div class="col-body">
+          <div class="roller" aria-hidden="true" />
+          <ItemStream
+            :items="items"
+            :colors="colors"
+            :active-iid="activeIid"
+            :highlight-eid="highlightEid"
+            :scroll-to="scrollTo"
+            :loading="loading"
+            :has-more="hasMore"
+            :force-show-trans="ui.showTranslation"
+            @select="onSelect"
+            @pick="onPick"
+            @focus="onFocus"
+            @reach-end="onReachEnd"
+            @scrolled="scrollTo = null"
+          />
+          <div class="roller" aria-hidden="true" />
+        </div>
         <div class="col-detail" :class="{ 'mobile-open': mobilePanel === 'detail' }">
           <DetailPanel
             :selection="selection"
@@ -322,24 +344,32 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onReaderKeydown))
 </template>
 
 <style scoped>
+/* 根节点：app-main 定高后 flex 填充（height:100% 在不定高父级上会退化成
+ * auto 被内容撑爆；flex:1 + min-height:0 是定高链的标准写法） */
 .reader {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   min-height: 0;
 }
 
+/* 阅读器顶栏：纸笺 + 双线界栏 */
 .bar {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  border-bottom: 1px solid var(--border-strong);
+  box-shadow: 0 1px 0 var(--paper-edge);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 60%),
+    var(--paper-deep);
 }
 
 .t {
   font-size: 15px;
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 1px;
 }
 
 .spacer {
@@ -350,13 +380,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onReaderKeydown))
   font-size: 12px;
 }
 
+/* 朱砂淡底警示签（span 异常/重试） */
 .badge-warn {
   font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: #faeeda;
-  color: #854f0b;
-  border: 1px solid #ef9f27;
+  padding: 1px 7px;
+  border-radius: 2px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
 }
 
 .badge-warn.btn {
@@ -365,7 +396,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onReaderKeydown))
 }
 
 .badge-warn.btn:hover {
-  background: #f6dcb6;
+  background: #eed9a8;
 }
 
 /* 移动端目录/详情切换按钮：桌面隐藏 */
@@ -374,21 +405,28 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onReaderKeydown))
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 3px 8px;
-  background: #fff;
-  color: var(--text-soft);
+  background: var(--paper);
+  color: var(--ink-soft);
   cursor: pointer;
 }
 
 .mbtn:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
 }
 
 /* 列容器：桌面为普通网格单元；移动端改为抽屉 */
 .col-toc,
 .col-detail {
+  min-height: 0;
+}
+
+/* 中栏卷轴：上轴/纸身/下轴 三段flex */
+.col-body {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
@@ -402,27 +440,40 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onReaderKeydown))
   width: 180px;
   padding: 3px 8px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 2px;
   font: inherit;
   font-size: 13px;
   outline: none;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .kw:focus {
-  border-color: var(--book-primary);
+  border-color: var(--ochre);
+  box-shadow: 0 0 0 2px var(--gold-tint);
 }
 
 .mini {
   font-size: 12px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 3px 8px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
+  background: var(--paper);
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .mini:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
+}
+
+.mini.on {
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
 .grid {

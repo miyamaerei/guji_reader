@@ -42,5 +42,8 @@ export function displayValue(v: unknown): string {
       .filter(Boolean)
       .join(' → ')
   }
+  // 单对象（联邦库 ent-ref 形如 { text: '顺天府', ent_ids: [] }）也要走 labelOf：
+  // 直接 String(v) 会渲染成 "[object Object]"（走查 2026-10-13，任职表三列全废）
+  if (v !== null && typeof v === 'object') return labelOf(v)
   return String(v)
 }

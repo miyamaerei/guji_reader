@@ -171,11 +171,23 @@ function onFilterPick(node: TreeNode): void {
 /** 当前被选中的筛选节点 key（用于树高亮） */
 const filterCurrent = computed(() => (filterTag.value || filter.value) ?? '')
 
+/**
+ * 卡片标题：优先用服务端派生的 titleKey（按字段名候选 + 数据长度校验），
+ * 否则回落到「第一个非空短字符串字段」（跳过系统字段，避免标题显示成
+ * 「cus」这种层键或一整段长文）。取不到就只用卡头编号。
+ */
 function titleOf(rec: LayerRecord): string {
-  const f = decl.value?.fields ?? {}
-  for (const k of Object.keys(f)) {
+  const fields = decl.value?.fields ?? {}
+  const tk = decl.value?.titleKey
+  if (tk) {
+    const v = rec[tk]
+    if (typeof v === 'string' && v.trim()) return v.trim()
+  }
+  for (const [k, f] of Object.entries(fields)) {
+    if (f.hideInList || f.view === 'hide') continue
+    if (k === 'id' || k.startsWith('_') || (k.endsWith('_id') && k.length > 3)) continue
     const v = rec[k]
-    if (typeof v === 'string' && v) return v
+    if (typeof v === 'string' && v.trim() && v.length <= 30) return v.trim()
   }
   return rec.id
 }
@@ -356,8 +368,8 @@ async function retryLayer(): Promise<void> {
               </div>
               <dl class="fields">
                 <template v-for="(f, k) in decl?.fields ?? {}" :key="k">
-                  <dt v-if="f.view !== 'hide'">{{ f.label }}</dt>
-                  <dd v-if="f.view !== 'hide'">
+                  <dt v-if="f.view !== 'hide' && !f.hideInList">{{ f.label }}</dt>
+                  <dd v-if="f.view !== 'hide' && !f.hideInList">
                     <FieldValue :value="item[k]" :field="f" :colors="book.config?.colors.entityTypes" />
                   </dd>
                 </template>
@@ -384,6 +396,13 @@ async function retryLayer(): Promise<void> {
   gap: 8px;
 }
 
+/* 层名：楷书题签 */
+.head strong {
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
 .spacer {
   flex: 1;
 }
@@ -391,21 +410,29 @@ async function retryLayer(): Promise<void> {
 .mini {
   font-size: 12px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 3px 8px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
+  background: var(--paper);
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .mini:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
+/* 总览面板 = 横幅卷轴：纸身 + 赭石双线框 */
 .panel {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 14px;
+  box-shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(94, 72, 38, 0.12);
 }
 
 .filter-row {
@@ -424,14 +451,14 @@ async function retryLayer(): Promise<void> {
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 10px 12px;
-  background: #fff;
+  background: var(--paper);
   font-size: 13px;
 }
 
 .vcard:hover {
-  border-color: var(--book-primary);
+  border-color: var(--cinnabar);
 }
 
 .volmodes {
@@ -444,34 +471,40 @@ async function retryLayer(): Promise<void> {
 
 .volmodes .lbl {
   font-size: 13px;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
+/* 卷模式签：方笺（弃圆角胶囊） */
 .vchip {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: var(--bg-soft);
-  border-radius: 12px;
+  background: var(--paper);
+  border-radius: 2px;
   padding: 1px 10px;
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
 .vchip.on {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
-  background: #fff;
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
 .vchip.clear {
-  background: #fff;
+  background: var(--paper);
 }
 
+/* 记录册页：纸卡 + 双线框，题名行压淡金底 */
 .rec {
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
   padding: 10px 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(94, 72, 38, 0.08);
 }
 
 .rec-head {
@@ -480,48 +513,67 @@ async function retryLayer(): Promise<void> {
   gap: 8px;
 }
 
+/* 题名行：淡金底 + 下细线，仿书口题签 */
+.rec-head strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  font-weight: 600;
+}
+
 .mono {
   font-family: ui-monospace, monospace;
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 
+/*
+ * 字段网格：值列必须 minmax(0, 1fr)。直接写 1fr 时列的 min 是 min-content，
+ * 一旦某字段值没有换行点（长串外文/无空格连续文本），整列会被撑爆并横向
+ * 溢出卡片（走查 2026-10-13 风俗层 description 溢出面板）。配 dd 的
+ * overflow-wrap:anywhere 后，任何内容都不可能把卡片撑宽。
+ */
 .fields {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 72px minmax(0, 1fr);
   gap: 2px 8px;
   margin: 6px 0 0;
   font-size: 13px;
 }
 
 .fields dt {
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 
 .fields dd {
   margin: 0;
+  min-width: 0;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
+/* 表格：仿刻本栏线——朱砂表头 + 赭石行线 */
 .tbl {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
   margin-top: 10px;
+  border: 1px solid var(--border-strong);
 }
 
 .tbl th,
 .tbl td {
   border-bottom: 1px solid var(--border);
-  padding: 4px 8px;
+  padding: 5px 8px;
   text-align: left;
   vertical-align: top;
 }
 
 .tbl th {
-  color: var(--text-soft);
+  color: var(--cinnabar-deep);
   font-weight: 500;
-  background: var(--bg-soft);
+  background: var(--gold-tint);
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .num {
@@ -533,16 +585,20 @@ async function retryLayer(): Promise<void> {
   font: inherit;
   border: none;
   background: none;
-  color: var(--book-primary);
+  color: var(--cinnabar);
   cursor: pointer;
   padding: 0;
   font-family: ui-monospace, monospace;
   font-size: 12px;
 }
 
+.link:hover {
+  text-decoration: underline;
+}
+
 .split {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: 12px;
 }
 
@@ -550,8 +606,13 @@ async function retryLayer(): Promise<void> {
  * 虚拟滚动容器（P5.2）：必须有确定的高度与独立滚动，
  * 否则内部算出的 totalHeight 无处生效，退化成整页滚动。
  * 高度给 vh 单位是为了随视口自适应，又不至于让长列表失去滚动条意义。
+ *
+ * display:block 覆盖 .cards 的多列网格：VirtualList 的行是绝对定位
+ * （left/right 撑满容器），整个外壳只是「一个网格项」——网格列会把卡片流
+ * 挤进最左边一列（走查截图：面板 3/4 空着），块级布局才让卡片铺满面板。
  */
-.vcards {
+.cards.vcards {
+  display: block;
   height: min(70vh, 720px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -561,25 +622,29 @@ async function retryLayer(): Promise<void> {
 .ftree {
   max-height: 420px;
   overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
   padding: 6px;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px var(--border);
 }
 
 .note {
   margin: 6px 0 0;
   font-size: 12px;
   line-height: 1.7;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
+/* 空态：纸上留白，虚线赭框 */
 .empty-filter {
   margin: 16px 0 0;
   padding: 18px;
   text-align: center;
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-strong);
   border-radius: var(--radius);
-  background: var(--bg-soft);
+  background: var(--paper-deep);
+  color: var(--ink-soft);
 }
 
 @media (max-width: 820px) {

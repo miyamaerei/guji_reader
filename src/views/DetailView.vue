@@ -106,26 +106,36 @@ function openRecord(layer: string, id: string): void {
   gap: 10px;
 }
 
+.head strong {
+  font-family: 'KaiTi', 'STKaiti', 'Kaiti SC', '楷体', serif;
+  letter-spacing: 1px;
+}
+
 .mini {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 3px 8px;
-  background: #fff;
+  border-radius: 2px;
+  padding: 3px 9px;
+  background: var(--paper);
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
 .mini:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
+  background: var(--cinnabar-tint);
 }
 
+/* 整页详情 = 摊开的册页：纸身 + 双线框 */
 .panel {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 14px;
+  box-shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(94, 72, 38, 0.12);
 }
 </style>

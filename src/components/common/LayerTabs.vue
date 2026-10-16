@@ -37,29 +37,33 @@ const emit = defineEmits<{ select: [id: string] }>()
   flex-wrap: wrap;
 }
 
+/* 竹简：金黄简身，顶圆底方，编绳处压赭线 */
 .tab {
   font: inherit;
   font-size: 13px;
-  padding: 4px 10px;
+  padding: 4px 11px;
   border: 1px solid var(--border);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
-  background: var(--bg-soft);
+  background: linear-gradient(180deg, var(--gold-tint) 0%, var(--paper-deep) 100%);
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  position: relative;
 }
 
 .tab:hover:not(:disabled) {
-  color: var(--text);
+  color: var(--cinnabar-deep);
 }
 
+/* 选中简：纸面 + 朱砂字 + 上沿一道印线 */
 .tab.on {
-  background: var(--bg);
-  color: var(--book-primary);
+  background: var(--paper);
+  color: var(--cinnabar-deep);
   font-weight: 500;
+  box-shadow: inset 0 2px 0 var(--cinnabar);
 }
 
 .tab.pending {
@@ -70,6 +74,6 @@ const emit = defineEmits<{ select: [id: string] }>()
 .tab em {
   font-style: normal;
   font-size: 11px;
-  color: #854f0b;
+  color: var(--warn-text);
 }
 </style>

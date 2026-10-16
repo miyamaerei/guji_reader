@@ -30,18 +30,28 @@ interface LayerCache {
  *
  * 回落是必需的：索引是 P5.1 才有的产物，旧数据包（已发布的静态站）里没有
  * 这个文件，直接 404 会让整个实体层不可用。
+ * 指定了 itemId 时直接取该条目的 ent 记录（含书证）——精简索引是全书的，
+ * 详情场景宁可多一次请求也要拿到书证（走查 2026-10-13 A5）。
  */
-async function loadEntLayer(bookId: string): Promise<LayerFile> {
+async function loadEntLayer(bookId: string, opts: { itemId?: string; full?: boolean } = {}): Promise<LayerFile> {
+  if (opts.itemId) {
+    return dataProvider.layer(bookId, 'ent', { itemId: opts.itemId, full: opts.full ?? true })
+  }
   try {
     const idx = await dataProvider.entIndex(bookId)
     // full=true 说明索引已含书证，直接当全量用
     return { layer: 'ent', count: idx.count, records: idx.records } as LayerFile
   } catch {
-    return dataProvider.layer(bookId, 'ent')
+    return dataProvider.layer(bookId, 'ent', opts)
   }
 }
 
-const key = (bookId: string, layer: LayerId) => `${bookId}/${layer}`
+/**
+ * 缓存键：条目维度的载荷（itemId）单独一份，避免污染全书层缓存——
+ * 联邦模式下带 itemId 的响应只含该条记录，与全量不可互替。
+ */
+const key = (bookId: string, layer: LayerId, itemId?: string) =>
+  `${bookId}/${layer}${itemId ? `#${itemId}` : ''}`
 
 export const useLayerStore = defineStore('layers', () => {
   const loading = ref<Set<string>>(new Set())
@@ -53,12 +63,16 @@ export const useLayerStore = defineStore('layers', () => {
   /** 加载失败的层，UI 显示「数据缺失」而不是反复重试 */
   const failed = ref<Set<string>>(new Set())
 
-  function peek(bookId: string, layer: LayerId): LayerCache | undefined {
-    return caches.value.get(key(bookId, layer))
+  function peek(bookId: string, layer: LayerId, itemId?: string): LayerCache | undefined {
+    return caches.value.get(key(bookId, layer, itemId))
   }
 
-  async function load(bookId: string, layer: LayerId): Promise<LayerCache | null> {
-    const k = key(bookId, layer)
+  async function load(
+    bookId: string,
+    layer: LayerId,
+    opts: { itemId?: string; full?: boolean } = {},
+  ): Promise<LayerCache | null> {
+    const k = key(bookId, layer, opts.itemId)
     const hit = caches.value.get(k)
     if (hit) return hit
     if (failed.value.has(k)) return null
@@ -68,8 +82,8 @@ export const useLayerStore = defineStore('layers', () => {
       // 旧数据包没有索引文件时回落到全量，保证向后兼容。
       const file =
         layer === 'ent'
-          ? await loadEntLayer(bookId)
-          : await dataProvider.layer(bookId, layer)
+          ? await loadEntLayer(bookId, opts)
+          : await dataProvider.layer(bookId, layer, opts)
       const byId = new Map<string, LayerRecord>()
       const byItem = new Map<string, LayerRecord[]>()
       for (const r of file.records) {
@@ -108,9 +122,13 @@ export const useLayerStore = defineStore('layers', () => {
     return peek(bookId, layer)?.byId.get(id)
   }
 
-  /** 某条目在某层的全部记录（已按文件顺序） */
+  /** 某条目在某层的全部记录（已按文件顺序）；条目维度缓存优先，回落全量缓存 */
   function recordsByItem(bookId: string, layer: LayerId, iid: string): LayerRecord[] {
-    return peek(bookId, layer)?.byItem.get(iid) ?? []
+    return (
+      peek(bookId, layer, iid)?.byItem.get(iid) ??
+      peek(bookId, layer)?.byItem.get(iid) ??
+      []
+    )
   }
 
   async function ensureLoaded(bookId: string, layer: LayerId): Promise<boolean> {

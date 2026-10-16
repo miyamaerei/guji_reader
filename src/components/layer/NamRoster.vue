@@ -56,40 +56,49 @@ const evidence = computed(() => textOf((props.record as Record<string, unknown>)
   flex-direction: column;
   gap: 6px;
 }
+
+/* 门类题签：淡金底 + 朱砂左界 */
 .grp {
   font-size: 13px;
   font-weight: 600;
   padding: 4px 8px;
-  background: var(--bg-soft);
-  border-left: 3px solid var(--book-primary);
-  border-radius: 3px;
+  background: var(--gold-tint);
+  border-left: 3px solid var(--cinnabar);
+  border-radius: 0 2px 2px 0;
 }
+
 .roster {
   border-collapse: collapse;
   font-size: 12.5px;
   width: 100%;
 }
+
 .roster th,
 .roster td {
   border: 1px solid var(--border);
   padding: 3px 7px;
   text-align: left;
 }
+
 .roster thead th {
-  background: var(--bg-soft);
+  background: var(--gold-tint);
   font-weight: 600;
+  color: var(--cinnabar-deep);
 }
+
 .seq {
   width: 30px;
   text-align: center;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
+
 .nm {
   font-weight: 600;
 }
+
 .muted {
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
   line-height: 1.7;
   margin: 0;
 }

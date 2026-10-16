@@ -43,9 +43,13 @@ const transVisible = computed(() => (showTrans.value || props.forceShowTrans) &&
     @click="emit('select', item.iid)"
   >
     <header>
-      <span class="iid">{{ item.iid }}</span>
+      <!-- 节标题为主（来自联邦库 spine 表）；iid 退为辅助标记 -->
+      <span v-if="item.title" class="stitle" :title="item.iid">{{ item.title }}</span>
+      <span v-else class="iid">{{ item.iid }}</span>
       <span v-for="t in tags" :key="t.text" class="ltag" :title="t.title ?? ''">{{ t.text }}</span>
       <span class="spacer" />
+      <!-- 有节标题时才另标 iid，避免与标题争主位 -->
+      <span v-if="item.title" class="iid">{{ item.iid }}</span>
       <button
         v-if="hasTrans && !forceShowTrans"
         class="mini"
@@ -73,19 +77,23 @@ const transVisible = computed(() => (showTrans.value || props.forceShowTrans) &&
 </template>
 
 <style scoped>
+/* 册页：纸 card + 双线框；选中态左缘压朱砂（仿书口） */
 .card {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 30%),
+    var(--paper);
+  border: 1px solid var(--border-strong);
   border-left: 3px solid transparent;
   border-radius: var(--radius);
   padding: 12px 14px;
   cursor: pointer;
   scroll-margin-top: 12px;
+  box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(94, 72, 38, 0.08);
 }
 
 .card.active {
-  border-left-color: var(--book-primary);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  border-left-color: var(--cinnabar);
+  box-shadow: 0 0 0 1px var(--ochre), 0 2px 8px rgba(94, 72, 38, 0.16);
 }
 
 header {
@@ -98,16 +106,28 @@ header {
 .iid {
   font-family: ui-monospace, monospace;
   font-size: 12px;
-  color: var(--text-soft);
+  color: var(--ink-faint);
 }
 
+/* 节标题：条目头位主标题（spine.title） */
+.stitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+/* 层徽标：竹笺 */
 .ltag {
   font-size: 10px;
-  padding: 0 4px;
-  border-radius: 3px;
-  background: var(--bg-soft);
+  padding: 0 5px;
+  border-radius: 2px;
+  background: var(--gold-tint);
   border: 1px solid var(--border);
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
 .spacer {
@@ -118,29 +138,35 @@ header {
   font: inherit;
   font-size: 12px;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 4px;
-  padding: 1px 7px;
+  background: var(--paper);
+  border-radius: 2px;
+  padding: 1px 8px;
   cursor: pointer;
-  color: var(--text-soft);
+  color: var(--ink-soft);
 }
 
 .mini:hover {
-  border-color: var(--book-primary);
-  color: var(--book-primary);
+  border-color: var(--cinnabar);
+  color: var(--cinnabar-deep);
 }
 
+/* 原文：仿刻本正文 */
 .body {
   font-size: 15px;
+  line-height: 1.95;
+  letter-spacing: 0.02em;
 }
 
+/* 译文：青黛淡底注疏区 */
 .trans {
   margin: 8px 0 0;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border);
+  padding: 8px 10px;
+  border-left: 2px solid var(--indigo);
+  border-radius: 0 2px 2px 0;
+  background: var(--indigo-tint);
   font-size: 13px;
   line-height: 1.9;
-  color: #4a4a45;
+  color: #3c4a52;
   white-space: pre-wrap;
 }
 </style>

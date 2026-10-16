@@ -6,6 +6,8 @@
   "description": "Vue3 多书知识阅读器",
   "scripts": {
     "dev": "vite",
+    "dev:fed": "node scripts/dev-fed.mjs",
+    "serve": "node server/sqlite-api.mjs",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",

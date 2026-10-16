@@ -29,6 +29,11 @@ export interface TreeNode {
   tags?: TreeNodeTag[]
   /** 叶子条目携带的 iid，供点击定位 */
   iid?: string
+  /**
+   * 节标题（仅叶子）。来自联邦库 `spine` 表；label 已按它渲染，
+   * 此处留原始值供 tooltip / 检索等二次用途。
+   */
+  title?: string
   /** 禁用（如「待补建」层） */
   disabled?: boolean
   /** 节点附带的任意数据，渲染层不解释 */
